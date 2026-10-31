@@ -34,7 +34,8 @@ python3 -m http.server 8765 --bind 127.0.0.1
 已配置 GitHub Actions 自动部署到 GitHub Pages。推送到 `main` 分支会发布网页，也可以在 Actions 页面手动运行部署。
 
 - 仓库：https://github.com/jeweis/jeweis-com
-- 网站：https://jeweis.github.io/jeweis-com/
+- 网站：https://jeweis.com/ （备用：https://jeweis.github.io/jeweis-com/）
+- 自定义域名：`jeweis.com` 与 `www.jeweis.com`，在阿里云 DNS 配置解析。
 - 仓库的 Settings → Pages → Source 应设置为 GitHub Actions。
 
 工作流仅上传首页、样式和交互脚本。无后端和环境变量。
