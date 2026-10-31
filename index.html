@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#202526">
+<title>几未同学 · 夜间营业中</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar"><a class="brand" href="#">jw<span>几未同学</span></a><div class="status"><i></i><span id="statusText">夜间营业中</span><span class="top-time" id="clock">23:48</span></div></header>
+<main>
+<section class="intro"><div class="eyebrow">A LITTLE CORNER OF THE INTERNET</div><h1>写点代码，<br>也留一点<span class="handwriting">浪漫。</span><span class="spark">✳</span></h1><p>嗨，我是几未同学。写点代码，做点音乐，偶尔发呆。<br>欢迎来到我的小角落，桌上的东西都可以碰。</p><div class="intro-bottom"><span class="small-arrow">↘</span><span>随便坐坐，不用着急。</span></div></section>
+<section class="workspace" aria-label="几未同学的互动工作台">
+<div class="scene-top"><span><i class="live-dot"></i> 我的工作台</span><button class="theme-button" id="themeButton" aria-label="切换到白天">☾ <span>关掉月亮</span></button></div>
+<div class="scene" id="scene">
+<div class="wall-grain"></div><div class="window"><div class="sky"><span class="moon"></span><span class="star s1">✦</span><span class="star s2">·</span><span class="star s3">✧</span><div class="skyline"></div></div><div class="window-cross"></div><div class="window-sill"></div></div>
+<div class="wall-caption">一点灵感，一点夜色。</div>
+<button class="note" id="noteButton" aria-label="翻看便签"><span class="tape"></span><span>记得抬头<br>看看月亮 :)</span><small>给路过的你 ↗</small></button>
+<div class="light-beam" id="lightBeam"></div>
+<button class="lamp" id="lampButton" aria-label="开关台灯" aria-pressed="true"><span class="lamp-shade"></span><span class="lamp-stem"></span><span class="lamp-base"></span></button>
+<div class="desk-back"></div>
+<button class="computer" id="computerButton" aria-label="打开 mcpcat 项目"><span class="monitor"><span class="monitor-inner"><span class="terminal-bar"><i></i><i></i><i></i><b>~/mcpcat</b></span><span class="terminal-content"><span class="terminal-cat">/\_/\<br>( o.o )<br> &gt; ^ &lt;</span><span class="terminal-command"><em>❯</em> connect something good<span class="cursor">▌</span></span><span class="terminal-result">● all systems purring.</span></span></span><span class="monitor-chin">mcpcat</span></span><span class="monitor-neck"></span><span class="monitor-foot"></span><span class="object-label computer-label">我的代码 <span>↗</span></span></button>
+<div class="keyboard"><span></span><span></span><span></span><span></span></div>
+<button class="player" id="playerButton" aria-label="打开音乐 你爱的样子"><span class="player-top"><span>JW SOUND</span><span>STEREO</span></span><span class="cassette-window"><span class="cassette-title">你爱的样子</span><span class="reels"><i></i><span></span><i></i></span><span class="cassette-footer">SIDE A · 2017</span></span><span class="player-controls"><i>◀◀</i><i class="play-icon">▶</i><i>■</i><i>▶▶</i></span><span class="object-label player-label">我的音乐 <span>↗</span></span></button>
+<button class="mug" id="mugButton" aria-label="喝一口咖啡"><span class="steam">﹏</span><span class="mug-body">慢。</span><span class="mug-handle"></span></button>
+<button class="cat" id="catButton" aria-label="摸摸桌上的猫"><span class="cat-tail"></span><span class="cat-body"></span><span class="cat-head"><span class="cat-ear left"></span><span class="cat-ear right"></span><span class="cat-face">˘ ᴥ ˘</span></span><span class="cat-paw"></span><span class="cat-paw second"></span></button>
+<div class="desk-front"></div><div class="desk-leg left"></div><div class="desk-leg right"></div>
+<div class="scene-hint">一点就有小事发生 <span>✳</span></div>
+<div class="speech" id="speech" role="status" aria-live="polite"></div>
+</div>
+<div class="scene-bottom"><span>DESIGNED FOR WANDERING, NOT RUSHING.</span><span>⌁ make yourself at home</span></div>
+</section>
+<section class="below"><span class="footnote"><span>✳</span> 这里没有太多东西，但每一件都是我。</span><a href="https://github.com/jeweis" target="_blank" rel="noopener noreferrer">去 GitHub 找我 ↗</a></section>
+</main>
+<footer><span>© <span id="year">2026</span> 几未同学</span><span>保持好奇，偶尔离线。<span class="footer-star">✧</span></span><span>用一点代码，搭一个小世界。</span></footer>
+<dialog id="detailDialog"><button class="close-dialog" id="closeDialog" aria-label="关闭弹窗">×</button><div id="dialogContent"></div></dialog>
+<script src="app.js"></script>
+</body>
+</html>
