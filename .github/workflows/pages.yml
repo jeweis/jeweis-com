@@ -29,6 +29,9 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html style.css app.js CNAME _site/
+          if compgen -G "*.txt" > /dev/null; then
+            cp -- *.txt _site/
+          fi
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
