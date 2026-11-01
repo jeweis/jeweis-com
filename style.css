@@ -1,4 +1,4 @@
-/* A small room, drawn with CSS and inline SVG. No external assets. */
+/* CSS code: MIT (LICENSE). Embedded SVG artwork is excluded; see ASSET-LICENSE.md. */
 :root {
   color-scheme: light;
   --paper: #f3f1e9;

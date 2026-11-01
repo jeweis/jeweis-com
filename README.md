@@ -30,3 +30,8 @@ python3 -m http.server 8765 --bind 127.0.0.1
 网站托管在 GitHub Pages，推送到 `main` 后自动部署到 https://jeweis.com/ 。
 
 开发和维护约定见 [AGENTS.md](AGENTS.md)。
+
+## 授权
+
+- **代码采用 [MIT License](LICENSE)**，允许使用、修改和商用，需保留版权及许可声明。
+- **原创插画、网站图标、音乐和表情包素材不纳入 MIT 授权**，保留相关权利。使用范围详见 [作品素材授权说明](ASSET-LICENSE.md)。
