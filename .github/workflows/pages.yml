@@ -28,7 +28,7 @@ jobs:
       - name: Prepare website files
         run: |
           mkdir -p _site
-          cp index.html style.css app.js CNAME _site/
+          cp index.html style.css app.js CNAME favicon.svg favicon.ico favicon-32x32.png apple-touch-icon.png _site/
           if compgen -G "*.txt" > /dev/null; then
             cp -- *.txt _site/
           fi

@@ -38,7 +38,9 @@ node --test tests/room.test.cjs
 - `www.jeweis.com` 跳转到根域名，HTTP 自动转 HTTPS。
 - GitHub Pages Source：GitHub Actions。推送 `main` 自动发布，也可手动运行工作流。
 
-部署仅上传 `index.html`、`style.css`、`app.js`、`CNAME` 和网站根目录的 `*.txt` 验证文件。微信验证文件需保留。测试、文档和本地配置不进入网站产物。
+部署仅上传 `index.html`、`style.css`、`app.js`、`CNAME`、网站图标和网站根目录的 `*.txt` 验证文件。微信验证文件需保留。测试、文档和本地配置不进入网站产物。
+
+网站图标以 `favicon.svg` 为主，包含适配深色标签栏的配色；`favicon.ico` 内含 16、32、48 像素兼容版本，另有 32 像素 PNG，以及用于 iPhone/iPad 添加到主屏幕的 180 像素 `apple-touch-icon.png`。所有版本都使用灰白小猫正脸。
 
 ## 公开仓库约定
 
