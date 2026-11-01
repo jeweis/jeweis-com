@@ -1,39 +1,113 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#202526">
-<title>几未同学 · 夜间营业中</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f1e9">
+  <meta name="description" content="几未同学的小工作台。把一些想法写成代码，把另一些写成歌。来听首歌，或者摸摸猫。">
+  <title>几未同学 · 夜间营业中</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
 </head>
 <body>
-<header class="topbar"><a class="brand" href="#">jw<span>几未同学</span></a><div class="status"><i></i><span id="statusText">夜间营业中</span><span class="top-time" id="clock">23:48</span></div></header>
-<main>
-<section class="intro"><div class="eyebrow">A LITTLE CORNER OF THE INTERNET</div><h1>写点代码，<br>也留一点<span class="handwriting">浪漫。</span><span class="spark">✳</span></h1><p>嗨，我是几未同学。写点代码，做点音乐，偶尔发呆。<br>欢迎来到我的小角落，桌上的东西都可以碰。</p><div class="intro-bottom"><span class="small-arrow">↘</span><span>随便坐坐，不用着急。</span></div></section>
-<section class="workspace" aria-label="几未同学的互动工作台">
-<div class="scene-top"><span><i class="live-dot"></i> 我的工作台</span><button class="theme-button" id="themeButton" aria-label="切换到白天">☾ <span>关掉月亮</span></button></div>
-<div class="scene" id="scene">
-<div class="wall-grain"></div><div class="window"><div class="sky"><span class="moon"></span><span class="star s1">✦</span><span class="star s2">·</span><span class="star s3">✧</span><div class="skyline"></div></div><div class="window-cross"></div><div class="window-sill"></div></div>
-<div class="wall-caption">一点灵感，一点夜色。</div>
-<button class="note" id="noteButton" aria-label="翻看便签"><span class="tape"></span><span>记得抬头<br>看看月亮 :)</span><small>给路过的你 ↗</small></button>
-<div class="light-beam" id="lightBeam"></div>
-<button class="lamp" id="lampButton" aria-label="开关台灯" aria-pressed="true"><span class="lamp-shade"></span><span class="lamp-stem"></span><span class="lamp-base"></span></button>
-<div class="desk-back"></div>
-<button class="computer" id="computerButton" aria-label="打开 mcpcat 项目"><span class="monitor"><span class="monitor-inner"><span class="terminal-bar"><i></i><i></i><i></i><b>~/mcpcat</b></span><span class="terminal-content"><span class="terminal-cat">/\_/\<br>( o.o )<br> &gt; ^ &lt;</span><span class="terminal-command"><em>❯</em> connect something good<span class="cursor">▌</span></span><span class="terminal-result">● all systems purring.</span></span></span><span class="monitor-chin">mcpcat</span></span><span class="monitor-neck"></span><span class="monitor-foot"></span><span class="object-label computer-label">我的代码 <span>↗</span></span></button>
-<div class="keyboard"><span></span><span></span><span></span><span></span></div>
-<button class="player" id="playerButton" aria-label="打开音乐 你爱的样子"><span class="player-top"><span>JW SOUND</span><span>STEREO</span></span><span class="cassette-window"><span class="cassette-title">你爱的样子</span><span class="reels"><i></i><span></span><i></i></span><span class="cassette-footer">SIDE A · 2017</span></span><span class="player-controls"><i>◀◀</i><i class="play-icon">▶</i><i>■</i><i>▶▶</i></span><span class="object-label player-label">我的音乐 <span>↗</span></span></button>
-<button class="mug" id="mugButton" aria-label="喝一口咖啡"><span class="steam">﹏</span><span class="mug-body">慢。</span><span class="mug-handle"></span></button>
-<button class="cat" id="catButton" aria-label="摸摸桌上的猫"><span class="cat-tail"></span><span class="cat-body"></span><span class="cat-head"><span class="cat-ear left"></span><span class="cat-ear right"></span><span class="cat-face">˘ ᴥ ˘</span></span><span class="cat-paw"></span><span class="cat-paw second"></span></button>
-<div class="desk-front"></div><div class="desk-leg left"></div><div class="desk-leg right"></div>
-<div class="scene-hint">一点就有小事发生 <span>✳</span></div>
-<div class="speech" id="speech" role="status" aria-live="polite"></div>
-</div>
-<div class="scene-bottom"><span>DESIGNED FOR WANDERING, NOT RUSHING.</span><span>⌁ make yourself at home</span></div>
-</section>
-<section class="below"><span class="footnote"><span>✳</span> 这里没有太多东西，但每一件都是我。</span><a href="https://github.com/jeweis" target="_blank" rel="noopener noreferrer">去 GitHub 找我 ↗</a></section>
-</main>
-<footer><span>© <span id="year">2026</span> 几未同学</span><span>保持好奇，偶尔离线。<span class="footer-star">✧</span></span><span>用一点代码，搭一个小世界。</span></footer>
-<dialog id="detailDialog"><button class="close-dialog" id="closeDialog" aria-label="关闭弹窗">×</button><div id="dialogContent"></div></dialog>
-<script src="app.js"></script>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="几未同学的首页"><span class="brand-mark">jw.</span><span>几未同学</span></a>
+    <div class="status"><i aria-hidden="true"></i><span id="statusText">夜间营业中</span><time id="clock"></time></div>
+  </header>
+  <main id="home">
+    <section class="intro" aria-labelledby="introTitle">
+      <div><p class="eyebrow">A SMALL ROOM, A FEW GOOD THINGS.</p><h1 id="introTitle">把一些想法写成代码，<br class="mobile-break">把另一些写成<span>歌。</span></h1></div>
+      <p class="welcome">随便坐坐。<br>桌上的东西，都可以碰。<span aria-hidden="true">↙</span></p>
+    </section>
+    <section class="workspace" aria-label="几未同学的互动工作台">
+      <div class="scene-top"><span><i aria-hidden="true"></i> 几未的小房间 <span class="room-number">ROOM 001</span></span><button id="themeButton" class="theme-button" aria-label="白天模式" aria-pressed="false"><span id="themeIcon" aria-hidden="true">☾</span><span id="themeText">切到白天</span></button></div>
+      <div class="scene" id="scene">
+        <div class="ambient-glow" aria-hidden="true"></div>
+        <div class="window" aria-hidden="true">
+          <svg viewBox="0 0 204 240" fill="none"><defs><linearGradient id="skyGradient" x2="0" y2="1"><stop stop-color="var(--sky-top)"/><stop offset="1" stop-color="var(--sky-bottom)"/></linearGradient></defs>
+            <rect x="8" y="5" width="188" height="216" rx="3" fill="#796b55"/><rect x="17" y="14" width="170" height="197" fill="url(#skyGradient)"/>
+            <g class="night-sky" fill="#e8d9a2"><circle cx="143" cy="53" r="18"/><circle cx="135" cy="45" r="16" fill="var(--sky-top)"/><path d="m46 42 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" opacity=".7"/><circle cx="88" cy="76" r="1.3"/><circle cx="158" cy="108" r="1"/><circle cx="65" cy="117" r="1"/></g>
+            <g class="day-sky"><circle cx="143" cy="53" r="19" fill="#f2d193"/><path d="M23 78h43m-30-7h38m61 40h37" stroke="#e5e6d0" stroke-width="8" stroke-linecap="round"/></g>
+            <path d="M17 174h17v-22h30v35h19v-49h29v27h25v-12h25v23h25v35H17Z" fill="var(--skyline)"/><path d="M45 169v5m51-22v5m10 15v5m42-10v5m-52 18v5" stroke="#d7bb6d" stroke-width="3" opacity=".45"/>
+            <path d="M102 14v197M17 111h170" stroke="#796b55" stroke-width="6"/><path d="M11 9h181v207H11Z" stroke="#9c8966" stroke-opacity=".4" stroke-width="2"/>
+            <rect x="0" y="219" width="204" height="11" rx="2" fill="#97815c"/><path d="M8 230h188" stroke="#182824" stroke-opacity=".3" stroke-width="6"/>
+          </svg>
+          <span class="window-caption">一点灵感，一点夜色。</span>
+        </div>
+        <button class="note object" id="noteButton" aria-label="展开几未同学给访客的便签" aria-haspopup="dialog" aria-controls="noteDialog"><span class="tape" aria-hidden="true"></span><span>记得抬头<br>看看月亮。</span><small>给路过的你 ↗</small></button>
+        <div class="desk" aria-hidden="true"><div class="desk-surface"></div><div class="desk-edge"></div><div class="desk-leg left"></div><div class="desk-leg right"></div></div>
+        <div class="light-beam" aria-hidden="true"></div>
+        <button class="lamp object" id="lampButton" aria-label="台灯" aria-pressed="true">
+          <svg viewBox="0 0 154 245" fill="none" aria-hidden="true"><ellipse cx="79" cy="231" rx="54" ry="7" fill="#17231e" opacity=".2"/><path d="M75 85h8v141h-8Z" fill="#a39771"/><path d="M79 88v132" stroke="#c5b68b" stroke-width="2"/><ellipse cx="79" cy="225" rx="42" ry="9" fill="#aa9871"/><path d="M37 223c0-9 84-9 84 0" fill="#c1ad80"/><path class="shade" d="M44 18h65l35 76H10Z" fill="#b99860"/><path d="m49 21-25 68M58 21 44 89" stroke="#d2b37a" stroke-opacity=".3" stroke-width="3"/><path d="M10 94h134" stroke="#e4c488" stroke-width="6"/><ellipse cx="77" cy="95" rx="65" ry="4" class="lamp-bulb" fill="#ffdda1"/><path d="M124 97v44" stroke="#bbaa80" stroke-width="2"/><circle cx="124" cy="143" r="4" fill="#ccaf77"/></svg>
+          <span class="object-label lamp-label">留一盏灯</span>
+        </button>
+        <button class="computer object" id="computerButton" aria-label="展开 mcpcat 项目" aria-haspopup="dialog" aria-controls="projectDialog">
+          <svg viewBox="0 0 370 290" fill="none" aria-hidden="true"><defs><linearGradient id="monitorCase" x2="0" y2="1"><stop stop-color="#b5baaa"/><stop offset="1" stop-color="#929e90"/></linearGradient><radialGradient id="screenGlow"><stop stop-color="#24483b"/><stop offset="1" stop-color="#172c29"/></radialGradient></defs>
+            <ellipse cx="185" cy="274" rx="120" ry="9" fill="#17231e" opacity=".22"/><path d="M164 224h42l7 38h-56Z" fill="#7c8b79"/><path d="M157 227h56v10h-56Z" fill="#647564"/>
+            <rect x="13" y="10" width="344" height="222" rx="11" fill="#1b2a26" opacity=".3"/><rect x="8" y="5" width="344" height="222" rx="10" fill="url(#monitorCase)"/><rect x="19" y="17" width="322" height="182" rx="4" fill="url(#screenGlow)"/>
+            <path d="M19 39h322" stroke="#435c48" stroke-opacity=".4"/><circle cx="30" cy="28" r="3" fill="#b67f66"/><circle cx="40" cy="28" r="3" fill="#c4b16f"/><circle cx="50" cy="28" r="3" fill="#8da67d"/><text x="149" y="31" fill="#8b9f88" font-family="monospace" font-size="8">~/mcpcat</text>
+            <path d="M158 83v-19l14 11q13-4 26 0l14-11v19q9 33-27 34-36-1-27-34Z" stroke="#a2c093" stroke-width="2"/><path d="M170 94h1m27 0h1" stroke="#b5cf9e" stroke-width="4" stroke-linecap="round"/><path d="m182 101 3 3 3-3m-3 3v4m-35-12 17 3m-15 7 15-2m38-5 16-3m-16 8 15 2" stroke="#a2c093" stroke-width="1.5" stroke-linecap="round"/>
+            <text x="45" y="148" font-family="monospace" font-size="10" fill="#c7c6a0">❯ connect something good<tspan class="screen-cursor"> ▌</tspan></text><text x="45" y="170" font-family="monospace" font-size="8" fill="#829d7b">● all systems purring.</text><text x="158" y="216" font-family="monospace" font-size="8" fill="#566955" letter-spacing="2">mcpcat</text><circle cx="326" cy="214" r="2" fill="#c2d5a4"/>
+            <path d="M133 261h104q10 0 15 8H118q5-8 15-8Z" fill="#a6b09b"/><path d="M118 269h134" stroke="#7a8a75" stroke-width="3"/>
+          </svg>
+          <span class="object-label computer-label">做了一点小工具 <span>↗</span></span>
+        </button>
+        <div class="keyboard" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <button class="player object" id="playerButton" aria-label="展开随身听，收听你爱的样子" aria-haspopup="dialog" aria-controls="musicDialog">
+          <svg viewBox="0 0 230 157" fill="none" aria-hidden="true"><ellipse cx="112" cy="145" rx="108" ry="8" fill="#17231e" opacity=".22"/><rect x="8" y="14" width="213" height="126" rx="10" fill="#8d8c70"/><rect x="6" y="8" width="213" height="126" rx="9" fill="#c4b895"/><path d="M14 12h196" stroke="#e3d5b3" stroke-width="2"/><text x="20" y="26" fill="#5b6652" font-family="monospace" font-size="7" letter-spacing="1">JW SOUND</text><text x="170" y="26" fill="#6c7159" font-family="monospace" font-size="5">STEREO</text>
+            <rect x="20" y="35" width="140" height="72" rx="5" fill="#9c9b78"/><rect x="24" y="39" width="132" height="64" rx="3" fill="#4e6554"/><path d="M24 43h132v18H24Z" fill="#ded3ad"/><text x="54" y="55" fill="#52634c" font-size="9">你爱的样子</text><circle cx="54" cy="78" r="12" fill="#c9c19b"/><circle cx="54" cy="78" r="5" fill="#56654e"/><circle cx="126" cy="78" r="12" fill="#c9c19b"/><circle cx="126" cy="78" r="5" fill="#56654e"/><path d="M72 75h36v7H72Z" fill="#a9a47d"/><text x="64" y="97" fill="#c6c4a0" font-family="monospace" font-size="5">SIDE A · 2017</text>
+            <path d="M177 45h26m-26 7h26m-26 7h26m-26 7h26m-26 7h26m-26 7h26m-26 7h26m-26 7h26" stroke="#939576" stroke-width="2"/>
+            <rect x="29" y="116" width="27" height="10" rx="2" fill="#ded3b0"/><rect class="player-key" x="60" y="116" width="27" height="10" rx="2" fill="#6a7c60"/><rect x="91" y="116" width="27" height="10" rx="2" fill="#ded3b0"/><rect x="122" y="116" width="27" height="10" rx="2" fill="#ded3b0"/><path d="m71 118 6 3-6 3Z" fill="#e7e1c7"/>
+          </svg><span class="object-label player-label">也写过一首歌 <span>↗</span></span>
+        </button>
+        <button class="mug object" id="mugButton" aria-label="端起咖啡休息一会儿">
+          <svg viewBox="0 0 95 118" fill="none" aria-hidden="true"><g class="steam" stroke="#e4debe" stroke-opacity=".4" stroke-linecap="round" stroke-width="2"><path d="M33 34c-9-12 11-13 3-26"/><path d="M49 30c-9-10 10-15 3-26"/></g><ellipse cx="45" cy="107" rx="38" ry="6" fill="#17231e" opacity=".15"/><path d="M66 52h13c16 0 13 35-8 33" stroke="#c9c7a7" stroke-width="10"/><path d="M16 47h57v42q0 19-29 19T16 89Z" fill="#dad5b6"/><ellipse cx="44.5" cy="48" rx="28.5" ry="8" fill="#e6dfc4"/><ellipse cx="44.5" cy="48" rx="22.5" ry="4.5" fill="#5e4c38"/><text x="30" y="86" fill="#8c9278" font-family="serif" font-size="17">慢。</text></svg>
+        </button>
+        <button class="cat object" id="catButton" data-state="sleeping" aria-label="摸摸小猫，它正在睡觉" aria-describedby="catHint">
+          <svg class="cat-svg" viewBox="0 0 300 180" fill="none" aria-hidden="true">
+            <defs><linearGradient id="catFur" x2="0" y2="1"><stop stop-color="#c49b6f"/><stop offset="1" stop-color="#a77a53"/></linearGradient><linearGradient id="catHeadFur" x2="0" y2="1"><stop stop-color="#d4ae7e"/><stop offset="1" stop-color="#bd9063"/></linearGradient></defs>
+            <ellipse cx="153" cy="158" rx="126" ry="12" fill="#16241e" opacity=".22"/>
+            <g class="cat-pose">
+              <path class="cat-tail" d="M235 130c51 22 64-20 35-29" stroke="#aa7e54" stroke-width="20" stroke-linecap="round"/>
+              <g class="cat-breath"><path d="M91 141c-3-31 10-76 59-80 57-5 106 27 108 62 2 23-18 32-68 32H111Z" fill="url(#catFur)"/><path d="M147 72c-1 10 5 18 11 20m13-22c0 12 7 19 11 21m13-16c-1 11 6 18 11 20" stroke="#986e4a" stroke-width="7" stroke-linecap="round" opacity=".6"/><path d="M193 142c25-4 39-22 32-39" stroke="#976b49" stroke-width="3" stroke-linecap="round" opacity=".6"/></g>
+              <g class="cat-front-paws"><path d="M101 137c-6 1-12 7-13 13-2 10 37 9 45 5l9-15Z" fill="#d1ab7c"/><path d="m104 151 1 5m8-6 1 6" stroke="#a57d54" stroke-width="1.5" stroke-linecap="round"/><path d="M75 139c-14-1-25 6-24 13 1 9 38 9 48 3l8-14Z" fill="#dabc8e"/><path d="m65 151 1 5m8-5 1 5" stroke="#ae865d" stroke-width="1.5" stroke-linecap="round"/></g>
+              <g class="cat-head-follow"><g class="cat-head">
+                <g class="cat-ear ear-left"><path d="M44 103 36 56q0-9 8-4l31 24Z" fill="#c49a6b"/><path d="m45 64 5 25 15-12Z" fill="#b68169"/></g>
+                <g class="cat-ear ear-right"><path d="m95 78 29-28q7-6 7 5l-2 48Z" fill="#c49a6b"/><path d="m123 64-19 15 16 11Z" fill="#b68169"/></g>
+                <path d="M39 106c0-23 19-34 45-33 29-2 48 14 48 36 0 25-22 41-48 40-27 0-45-16-45-43Z" fill="url(#catHeadFur)"/>
+                <path d="m73 78 5 13m9-14v12m11-10-5 12" stroke="#a47a50" stroke-width="4" stroke-linecap="round"/>
+                <g class="cat-face"><path d="M60 121c2-9 15-10 24-2 10-8 23-6 25 2 4 17-48 22-49 0Z" fill="#e1c69b"/>
+                  <g class="eyes-closed" stroke="#5e5141" stroke-width="2.7" stroke-linecap="round"><path d="M56 111q7 6 14 0m28 0q7 6 14 0"/></g>
+                  <g class="eyes-open"><ellipse cx="64" cy="110" rx="5" ry="6" fill="#536047"/><ellipse cx="104" cy="110" rx="5" ry="6" fill="#536047"/><path d="M64 106v8m40-8v8" stroke="#293f30" stroke-width="2"/><circle cx="66" cy="108" r="1.4" fill="#f1e3ba"/><circle cx="106" cy="108" r="1.4" fill="#f1e3ba"/></g>
+                  <path d="m79 120 5 4 5-4Z" fill="#966d5d"/><path d="M84 124v4m0-1q-4 6-8 1m8-1q4 6 8 1" stroke="#79604b" stroke-width="1.6" stroke-linecap="round"/>
+                  <g stroke="#a9855c" stroke-width="1.4" stroke-linecap="round"><path d="m68 123-26-3m26 9-25 3m57-9 26-3m-26 9 25 3"/></g>
+                </g>
+                <g class="cat-back-head"><path d="M39 106c0-23 19-34 45-33 29-2 48 14 48 36 0 25-22 41-48 40-27 0-45-16-45-43Z" fill="url(#catFur)"/><path d="m72 79 5 15m11-17v16m11-13-5 15" stroke="#986e4a" stroke-width="4" stroke-linecap="round"/></g>
+              </g></g>
+            </g>
+          </svg>
+          <span class="cat-zzz" aria-hidden="true">z<span>z</span></span>
+        </button>
+        <span class="cat-hint" id="catHint">它好像睡着了。轻轻摸一下？</span>
+        <div class="scene-whisper" id="speech" role="status" aria-live="polite"></div>
+      </div>
+      <div class="scene-bottom"><span>不用着急，灵感也在休息。</span><span>MAKE YOURSELF AT HOME <span aria-hidden="true">✳</span></span></div>
+    </section>
+    <nav class="room-nav" aria-label="房间里的内容"><button data-open="project"><span>01</span> 写的代码 <span aria-hidden="true">↗</span></button><button data-open="music"><span>02</span> 做的音乐 <span aria-hidden="true">↗</span></button><button data-open="note"><span>03</span> 一张便签 <span aria-hidden="true">↗</span></button></nav>
+  </main>
+  <footer><span>© <span id="year">2026</span> 几未同学</span><span>保持好奇，偶尔离线。</span><a href="https://github.com/jeweis" target="_blank" rel="noopener noreferrer">GitHub ↗</a></footer>
+
+  <dialog id="projectDialog" class="detail-panel project-panel" aria-labelledby="projectTitle">
+    <div class="panel-bar"><span><i></i><i></i><i></i></span><span>~/mcpcat</span><button class="close-panel" data-close aria-label="关闭项目详情">×</button></div>
+    <div class="panel-content"><p class="eyebrow">01 / THINGS I BUILD</p><h2 id="projectTitle">mcpcat<span class="project-dot">●</span></h2><p class="panel-lead">把不同的 AI 工具，<br>接到同一个入口。</p><p class="panel-copy">我做的 MCP 聚合平台。统一管理和运行不同协议的服务，也能把 OpenAPI 配置转成 MCP。</p>
+      <div class="patchboard"><p>选一个插头，接上试试。</p><div class="plug-grid"><button data-plug="STDIO" aria-pressed="false"><span class="plug-symbol" aria-hidden="true">⊞</span>STDIO<span class="wire" aria-hidden="true"></span></button><button data-plug="HTTP" aria-pressed="false"><span class="plug-symbol" aria-hidden="true">⌁</span>HTTP<span class="wire" aria-hidden="true"></span></button><button data-plug="OpenAPI" aria-pressed="false"><span class="plug-symbol" aria-hidden="true">{ }</span>OpenAPI<span class="wire" aria-hidden="true"></span></button></div><div class="hub" id="hub" aria-hidden="true"><span>mcpcat</span><i></i><i></i><i></i></div><p id="connectionOutput" class="connection-output" role="status">0 / 3 connected · 等待连接</p></div>
+      <a class="primary-link" href="https://github.com/jeweis/mcpcat" target="_blank" rel="noopener noreferrer">去 GitHub 看看 <span>↗</span></a><span class="panel-footnote">一个还在慢慢打磨的小工具。</span>
+    </div>
+  </dialog>
+  <dialog id="musicDialog" class="detail-panel music-panel" aria-labelledby="musicTitle">
+    <div class="panel-bar"><span>JW SOUND · SIDE A</span><button class="close-panel" data-close aria-label="关闭音乐面板并停止播放">×</button></div>
+    <div class="panel-content"><p class="eyebrow">02 / THINGS I MAKE</p><div class="album-art" aria-hidden="true"><span class="album-orbit"></span><span class="album-name">你爱的<br>样子</span><span class="album-small">SHAPE OF YOUR LOVE<br>2017 · A SONG BY JW</span><span class="album-star">✳</span></div><h2 id="musicTitle">你爱的样子</h2><p class="song-meta">2017 · 单曲 · 03:58<span>词 / 曲 / 编曲 / 演唱</span></p><p class="panel-copy">有些心情写进代码里，<br>有些，留在一首歌里。</p><div id="musicEmbed" class="music-embed"></div><p class="embed-hint">轻按播放器开始听。关闭这张卡片，音乐也会停下。</p><a class="text-link" href="https://music.163.com/#/song?id=474447967" target="_blank" rel="noopener noreferrer">没听到声音？去网易云收听 ↗</a></div>
+  </dialog>
+  <dialog id="noteDialog" class="detail-panel note-panel" aria-labelledby="noteTitle"><button class="close-panel" data-close aria-label="收起便签">×</button><div class="panel-content"><p class="eyebrow">A NOTE FOR YOU</p><h2 id="noteTitle">给路过的你。</h2><div class="note-copy"><p>这里是几未同学的小角落。<br>有一个慢慢打磨的项目，<br>一首留在过去的歌，<br>还有一些没想好要做成什么的想法。</p><p>不必每一天都很有成果。<br>能做一点自己喜欢的事，就很好。</p><p>如果你也刚好路过，<br>希望这里能让你放松一小会儿。</p><p class="signature">几未同学<br><small>写于某个不想睡的晚上</small></p></div></div></dialog>
 </body>
 </html>
