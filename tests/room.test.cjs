@@ -50,7 +50,7 @@ function room({ reduced = false, storageBlocked = false, stored = null, discover
     setAttribute(key, value) { this.attributes[key] = value; }
     getAttribute(key) { return this.attributes[key] ?? null; }
     addEventListener(name, callback) { (this.listeners[name] ??= []).push(callback); }
-    fire(name, props = {}) { for (const callback of this.listeners[name] || []) callback({ target: this, ...props }); }
+    fire(name, props = {}) { for (const callback of this.listeners[name] || []) callback({ target: this, preventDefault() {}, stopPropagation() {}, ...props }); }
     click() { this.fire('click'); }
     focus() { document.activeElement = this; this.fire('focus'); }
     replaceChildren(...children) { this.children = children; }
@@ -81,9 +81,17 @@ function room({ reduced = false, storageBlocked = false, stored = null, discover
     return button;
   });
   const stickerTabs = [elements.stickerTab0, elements.stickerTab1];
+  const weatherChoices = ['Clear', 'Rain', 'Snow', 'Fog'].map((suffix) => {
+    const choice = elements[`weatherChoice${suffix}`];
+    choice.dataset.weatherChoice = suffix.toLowerCase();
+    return choice;
+  });
+  elements.weatherControl.children = [elements.weatherButton, elements.weatherMenu];
+  elements.weatherMenu.children = weatherChoices;
   document.querySelectorAll = (selector) => selector === '[data-plug]' ? plugs
     : selector === '[data-open]' ? shortcuts
-      : selector === '[data-sticker-pack]' ? stickerTabs : [];
+      : selector === '[data-sticker-pack]' ? stickerTabs
+        : selector === '[data-weather-choice]' ? weatherChoices : [];
   elements.catSecret.hidden = true;
   elements.catSecret.children = [shortcuts[3], elements.closeCatSecret];
   elements.hub.lights = Array.from({ length: 3 }, () => new Element());
@@ -323,10 +331,17 @@ test('sticker tabs: keyboard navigation selects pack and moves tab focus', () =>
   assert.equal(elements.stickerPackContent.getAttribute('aria-labelledby'), 'stickerTab1');
 });
 
+function selectWeather(elements, weather) {
+  elements.weatherButton.click();
+  const suffix = weather[0].toUpperCase() + weather.slice(1);
+  elements[`weatherChoice${suffix}`].click();
+}
+
 test('weather: legacy settings restore with clear weather; invalid weather is ignored', () => {
   for (const weather of [undefined, 'storm', '__proto__', 12, null]) {
     const { elements, document } = room({ stored: JSON.stringify({ day: true, lampOn: false, weather }) });
-    assert.equal(elements.weatherSelect.value, 'clear');
+    assert.equal(elements.weatherButtonLabel.textContent, '晴朗');
+    assert.equal(elements.weatherChoiceClear.getAttribute('aria-checked'), 'true');
     assert.equal(elements.scene.dataset.weather, 'clear');
     assert.equal(document.body.classList.contains('day'), true);
     assert.equal(elements.scene.classList.contains('lamp-off'), true);
@@ -335,7 +350,8 @@ test('weather: legacy settings restore with clear weather; invalid weather is ig
 
 test('weather: saved weather, day and lamp restore independently; toggles preserve weather', () => {
   const { elements, localStorage, document } = room({ stored: '{"day":true,"lampOn":false,"weather":"snow"}' });
-  assert.equal(elements.weatherSelect.value, 'snow');
+  assert.equal(elements.weatherButtonLabel.textContent, '下雪');
+  assert.equal(elements.weatherCurrentIcon.getAttribute('href'), '#weatherIconSnow');
   assert.equal(elements.scene.dataset.weather, 'snow');
   elements.themeButton.click();
   elements.lampButton.click();
@@ -344,26 +360,23 @@ test('weather: saved weather, day and lamp restore independently; toggles preser
   assert.deepEqual(JSON.parse(localStorage.value), { day: false, lampOn: true, weather: 'snow' });
 });
 
-test('weather: selecting each weather updates the window and persists; invalid input is rejected', () => {
+test('weather: choosing each tile updates the window and persists; invalid input is rejected', () => {
   const { elements, localStorage } = room();
   for (const weather of ['rain', 'snow', 'fog', 'clear']) {
-    elements.weatherSelect.value = weather;
-    elements.weatherSelect.fire('change');
+    selectWeather(elements, weather);
     assert.equal(elements.scene.dataset.weather, weather);
     assert.equal(JSON.parse(localStorage.value).weather, weather);
     assert.ok(elements.windowCaption.textContent.length > 0);
   }
-  elements.weatherSelect.value = 'invalid';
-  elements.weatherSelect.fire('change');
-  assert.equal(elements.weatherSelect.value, 'clear');
+  elements.weatherChoiceClear.dataset.weatherChoice = 'invalid';
+  elements.weatherChoiceClear.click();
   assert.equal(elements.scene.dataset.weather, 'clear');
 });
 
-test('weather: storage denial and reduced motion still allow all weather choices without cat motion', () => {
+test('weather: storage denial and reduced motion still allow choices without cat motion', () => {
   const { elements, advance } = room({ storageBlocked: true, reduced: true, random: .1 });
   for (const weather of ['rain', 'snow', 'fog']) {
-    elements.weatherSelect.value = weather;
-    elements.weatherSelect.fire('change');
+    selectWeather(elements, weather);
     assert.equal(elements.scene.dataset.weather, weather);
   }
   assert.notEqual(elements.catButton.dataset.state, 'watching');
@@ -372,37 +385,31 @@ test('weather: storage denial and reduced motion still allow all weather choices
   assert.notEqual(elements.catButton.dataset.state, 'watching');
 });
 
-test('weather: snow occasionally interests Dixi, with recovery and cooldown, without revealing the secret', () => {
+test('weather: snow interests Dixi occasionally, with recovery and cooldown, without discovering the secret', () => {
   const { elements, advance } = room({ random: .1 });
-  elements.weatherSelect.value = 'snow';
-  elements.weatherSelect.fire('change');
+  selectWeather(elements, 'snow');
   assert.equal(elements.catButton.dataset.state, 'watching');
   assert.equal(elements.catSecret.hidden, true);
   assert.equal(elements.stickerButton.hidden, true);
   advance(2500);
   assert.equal(elements.catButton.dataset.state, 'sleeping');
-  elements.weatherSelect.value = 'rain';
-  elements.weatherSelect.fire('change');
+  selectWeather(elements, 'rain');
   assert.equal(elements.catButton.dataset.state, 'sleeping');
   advance(20000);
-  elements.weatherSelect.value = 'clear';
-  elements.weatherSelect.fire('change');
-  elements.weatherSelect.value = 'snow';
-  elements.weatherSelect.fire('change');
+  selectWeather(elements, 'clear');
+  selectWeather(elements, 'snow');
   assert.equal(elements.catButton.dataset.state, 'watching');
 });
 
-test('weather: rain can cause a small reposition; normal petting takes priority and cancels recovery', () => {
+test('weather: rain repositions Dixi; petting takes priority and cancels recovery', () => {
   const { elements, advance } = room({ random: .1 });
-  elements.weatherSelect.value = 'rain';
-  elements.weatherSelect.fire('change');
+  selectWeather(elements, 'rain');
   assert.equal(elements.catButton.dataset.state, 'shifting');
   elements.catButton.click();
   assert.equal(elements.catButton.dataset.state, 'awake');
   elements.catButton.click();
   elements.catButton.click();
-  elements.weatherSelect.value = 'snow';
-  elements.weatherSelect.fire('change');
+  selectWeather(elements, 'snow');
   assert.equal(elements.catButton.dataset.state, 'turned');
   advance(2500);
   assert.equal(elements.catButton.dataset.state, 'turned');
@@ -410,15 +417,13 @@ test('weather: rain can cause a small reposition; normal petting takes priority 
   assert.equal(elements.catButton.dataset.state, 'sleeping');
 });
 
-test('weather: reactions remain occasional and do not run behind an open dialog', () => {
+test('weather: reactions remain occasional and do not run behind a dialog', () => {
   const quiet = room({ random: .9 });
-  quiet.elements.weatherSelect.value = 'snow';
-  quiet.elements.weatherSelect.fire('change');
+  selectWeather(quiet.elements, 'snow');
   assert.notEqual(quiet.elements.catButton.dataset.state, 'watching');
   const { elements } = room({ random: .1 });
   elements.computerButton.click();
-  elements.weatherSelect.value = 'snow';
-  elements.weatherSelect.fire('change');
+  elements.weatherChoiceSnow.click();
   assert.equal(elements.catButton.dataset.state, 'sleeping');
 });
 
@@ -438,4 +443,82 @@ test('weather: offscreen and hidden-page pauses combine without resuming too ear
   assert.equal(elements.scene.classList.contains('weather-paused'), true);
   setWindowVisible([false, true]);
   assert.equal(elements.scene.classList.contains('weather-paused'), false);
+});
+
+test('weather menu: opens on current choice; activation updates radio state, closes and returns focus', () => {
+  const { elements, document } = room({ stored: '{"weather":"snow"}' });
+  assert.equal(elements.weatherMenu.hidden, true);
+  elements.weatherButton.click();
+  assert.equal(elements.weatherMenu.hidden, false);
+  assert.equal(elements.weatherButton.getAttribute('aria-expanded'), 'true');
+  assert.equal(document.activeElement, elements.weatherChoiceSnow);
+  elements.weatherChoiceRain.click();
+  assert.equal(elements.weatherMenu.hidden, true);
+  assert.equal(elements.weatherButton.getAttribute('aria-expanded'), 'false');
+  assert.equal(elements.weatherChoiceRain.getAttribute('aria-checked'), 'true');
+  assert.equal(elements.weatherChoiceSnow.getAttribute('aria-checked'), 'false');
+  assert.equal(elements.weatherButtonLabel.textContent, '下雨');
+  assert.equal(elements.weatherCurrentIcon.getAttribute('href'), '#weatherIconRain');
+  assert.equal(document.activeElement, elements.weatherButton);
+});
+
+test('weather menu: arrows navigate the grid without selecting, Escape returns focus', () => {
+  const { elements, document } = room();
+  elements.weatherButton.fire('keydown', { key: 'ArrowDown' });
+  assert.equal(document.activeElement, elements.weatherChoiceClear);
+  elements.weatherChoiceClear.fire('keydown', { key: 'ArrowDown' });
+  assert.equal(document.activeElement, elements.weatherChoiceSnow);
+  elements.weatherChoiceSnow.fire('keydown', { key: 'ArrowRight' });
+  assert.equal(document.activeElement, elements.weatherChoiceFog);
+  assert.equal(elements.scene.dataset.weather, 'clear');
+  elements.weatherMenu.fire('keydown', { key: 'Escape' });
+  assert.equal(elements.weatherMenu.hidden, true);
+  assert.equal(document.activeElement, elements.weatherButton);
+  elements.weatherButton.fire('keydown', { key: 'ArrowUp' });
+  assert.equal(document.activeElement, elements.weatherChoiceFog);
+  elements.weatherChoiceFog.fire('keydown', { key: 'Home' });
+  assert.equal(document.activeElement, elements.weatherChoiceClear);
+});
+
+test('weather menu: outside click and focus dismiss without pulling focus back', () => {
+  const { elements, document } = room();
+  elements.weatherButton.click();
+  document.fire('pointerdown', { target: elements.weatherChoiceRain });
+  assert.equal(elements.weatherMenu.hidden, false);
+  elements.themeButton.focus();
+  document.fire('pointerdown', { target: elements.themeButton });
+  assert.equal(elements.weatherMenu.hidden, true);
+  assert.equal(document.activeElement, elements.themeButton);
+  elements.weatherButton.click();
+  elements.playerButton.focus();
+  document.fire('focusin', { target: elements.playerButton });
+  assert.equal(elements.weatherMenu.hidden, true);
+  assert.equal(document.activeElement, elements.playerButton);
+});
+
+test('weather menu: Tab dismisses after native focus movement; a dialog also dismisses it', () => {
+  const { elements, document, advance } = room();
+  elements.weatherButton.click();
+  elements.weatherMenu.fire('keydown', { key: 'Tab' });
+  elements.themeButton.focus();
+  advance(0);
+  assert.equal(elements.weatherMenu.hidden, true);
+  assert.equal(document.activeElement, elements.themeButton);
+  elements.weatherButton.click();
+  elements.computerButton.click();
+  assert.equal(elements.weatherMenu.hidden, true);
+  assert.equal(elements.projectDialog.open, true);
+});
+
+test('weather menu: blank-area dismissal and page hiding leave focus on a visible button', () => {
+  const { elements, document } = room();
+  elements.weatherButton.click();
+  document.fire('pointerdown', { target: elements.scene });
+  assert.equal(elements.weatherMenu.hidden, true);
+  assert.equal(document.activeElement, elements.weatherButton);
+  elements.weatherButton.click();
+  document.hidden = true;
+  document.fire('visibilitychange');
+  assert.equal(elements.weatherMenu.hidden, true);
+  assert.equal(document.activeElement, elements.weatherButton);
 });

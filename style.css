@@ -38,14 +38,36 @@ h1 span { font-family: "Songti SC", "STSong", serif; color: #78845e; }
 .welcome { font-size: 11px; line-height: 1.9; color: var(--muted); position: relative; padding-right: 34px; margin: 0 0 3px; letter-spacing: .8px; }
 .welcome > span { position: absolute; right: 0; bottom: 0; color: #a6ac95; font-size: 30px; font-family: Georgia, serif; }
 .workspace { border-radius: 10px; border: 1px solid #d2d8c7; overflow: hidden; box-shadow: 0 16px 40px #30462c0a; }
-.scene-top { height: 48px; background: #e9ecdf; display: flex; align-items: center; justify-content: space-between; padding: 0 23px; font-size: 11px; letter-spacing: 1px; }
+.scene-top { position: relative; z-index: 20; height: 48px; background: #e9ecdf; display: flex; align-items: center; justify-content: space-between; padding: 0 23px; font-size: 11px; letter-spacing: 1px; }
 .scene-top > span { display: flex; align-items: center; gap: 9px; }
 .room-number { color: #8e9984; font: 8px monospace; letter-spacing: 1.4px; margin-left: 14px; }
-.room-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.weather-control { position: relative; display: block; color: #617255; }
-.weather-control select { display: block; min-height: 36px; width: 94px; padding: 5px 23px 5px 11px; border: 1px solid #cdd5c0; border-radius: 24px; background: #f2f3e9; color: inherit; font-family: inherit; font-size: 11px; cursor: pointer; appearance: none; }
-.weather-control > span { position: absolute; right: 10px; top: 9px; font-size: 12px; pointer-events: none; }
-.weather-control select:focus-visible { outline: 3px solid #bc8d58; outline-offset: 4px; }
+.room-controls { position: relative; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.weather-control { color: #5d7051; }
+.weather-sprite { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+.weather-trigger { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; width: 94px; padding: 5px 10px; border: 1px solid #cdd5c0; border-radius: 24px; background: #f2f3e9; font-size: 11px; transition: background 180ms, border-color 180ms; }
+.weather-trigger:hover, .weather-trigger[aria-expanded="true"] { background: #e3e9d7; border-color: #b1c0a0; }
+.weather-trigger .weather-current-icon { width: 19px; height: 19px; flex-shrink: 0; }
+.weather-trigger .weather-chevron { width: 10px; height: 10px; margin-left: auto; transition: transform 180ms; }
+.weather-trigger[aria-expanded="true"] .weather-chevron { transform: rotate(180deg); }
+.weather-menu { position: absolute; right: 0; top: calc(100% + 10px); width: 248px; max-width: calc(100vw - 52px); padding: 16px 13px 13px; border: 1px solid #d5dbc7; border-radius: 11px; background: #f7f5e9; color: #4e6346; box-shadow: 0 10px 30px #142d292b, 0 2px 5px #142d2912; letter-spacing: 0; animation: weather-card-in 160ms ease-out; }
+.weather-menu-title { margin: 0 0 13px 3px; font-family: "Songti SC", serif; font-size: 12px; font-weight: 500; line-height: 1.6; }
+.weather-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.weather-choice { position: relative; display: flex; align-items: center; gap: 9px; min-height: 88px; min-width: 0; padding: 15px 9px; border: 1px solid #e1e5d6; border-radius: 7px; background: #f0f0e4; color: #566c4e; text-align: left; transition: background 160ms, border-color 160ms; }
+.weather-choice > svg { width: 30px; height: 30px; flex-shrink: 0; }
+.weather-choice-copy { display: grid; gap: 6px; min-width: 0; }
+.weather-choice strong { font-size: 12px; font-weight: 500; white-space: nowrap; }
+.weather-choice small { font-size: 9px; line-height: 1.5; white-space: nowrap; color: #647159; }
+.weather-choice:hover { background: #e8eddd; border-color: #b9c6aa; }
+.weather-choice[aria-checked="true"] { background: #e0e9d3; border-color: #97ad7d; }
+.weather-choice:focus-visible { outline: 2px solid #927b4e; outline-offset: 1px; }
+.weather-check { position: absolute; top: 7px; right: 7px; width: 13px; height: 13px; border-radius: 50%; background: #657f51; opacity: 0; }
+.weather-check::after { content: ''; position: absolute; width: 5px; height: 3px; left: 4px; top: 4px; border-left: 1.4px solid #fff; border-bottom: 1.4px solid #fff; transform: rotate(-45deg); }
+.weather-choice[aria-checked="true"] .weather-check { opacity: 1; }
+.weather-choice[data-weather-choice="clear"] > svg { color: #927942; }
+.weather-choice[data-weather-choice="rain"] > svg { color: #58746c; }
+.weather-choice[data-weather-choice="snow"] > svg { color: #597780; }
+.weather-choice[data-weather-choice="fog"] > svg { color: #6c7b60; }
+@keyframes weather-card-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 .theme-button { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 5px 12px; border: 1px solid #cdd5c0; background: #f2f3e9; border-radius: 30px; font-size: 10px; color: #68765d; }
 #themeIcon { font-size: 17px; line-height: 1; }
 .scene { position: relative; height: clamp(490px, 45vw, 555px); background: linear-gradient(110deg, var(--wall-top), var(--wall-bottom)); isolation: isolate; overflow: hidden; transition: background 650ms; }
@@ -339,7 +361,9 @@ h2 { font: 500 31px/1.3 "Songti SC", "STSong", serif; margin: 0 0 16px; }
   .room-number { display: none; }
   .theme-button { min-height: 36px; font-size: 9px; gap: 5px; padding: 5px 9px; }
   .room-controls { gap: 6px; }
-  .weather-control select { width: 80px; font-size: 10px; padding-left: 9px; }
+  .weather-trigger { width: 80px; font-size: 10px; padding: 5px 8px; gap: 5px; }
+  .weather-trigger .weather-current-icon { width: 17px; height: 17px; }
+  .weather-trigger .weather-chevron { width: 8px; height: 8px; }
   .scene { height: 510px; }
   .window { left: 6%; top: 6%; width: 35%; max-width: 165px; }
   .window-caption { display: none; }

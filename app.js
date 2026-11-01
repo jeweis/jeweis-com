@@ -7,6 +7,9 @@ const hoverPreference = window.matchMedia('(hover: hover) and (pointer: fine)');
 // Room preferences and Dixi's discovery flag stay on this device. No visitor tracking.
 const preferenceKey = 'jw-room-preferences-v1';
 const weatherTypes = ['clear', 'rain', 'snow', 'fog'];
+const weatherNames = { clear: '晴朗', rain: '下雨', snow: '下雪', fog: '起雾' };
+const weatherIcons = { clear: 'Clear', rain: 'Rain', snow: 'Snow', fog: 'Fog' };
+const weatherChoices = [...document.querySelectorAll('[data-weather-choice]')];
 let preferences = { day: false, lampOn: true, weather: 'clear' };
 try {
   const saved = JSON.parse(localStorage.getItem(preferenceKey));
@@ -21,7 +24,14 @@ function applyPreferences() {
   document.body.classList.toggle('day', preferences.day);
   $('scene').classList.toggle('lamp-off', !preferences.lampOn);
   $('scene').dataset.weather = preferences.weather;
-  $('weatherSelect').value = preferences.weather;
+  $('weatherButtonLabel').textContent = weatherNames[preferences.weather];
+  $('weatherCurrentIcon').setAttribute('href', `#weatherIcon${weatherIcons[preferences.weather]}`);
+  $('weatherButton').setAttribute('aria-label', `窗外天气：${weatherNames[preferences.weather]}，更换天气`);
+  weatherChoices.forEach((choice) => {
+    const selected = choice.dataset.weatherChoice === preferences.weather;
+    choice.setAttribute('aria-checked', String(selected));
+    choice.tabIndex = selected ? 0 : -1;
+  });
   const captions = {
     clear: preferences.day ? '一点灵感，一点日光。' : '一点灵感，一点夜色。',
     rain: '窗外小雨，屋里刚好。',
@@ -53,17 +63,87 @@ $('lampButton').addEventListener('click', () => {
   savePreferences();
 });
 
-$('weatherSelect').addEventListener('change', () => {
-  const weather = $('weatherSelect').value;
-  if (!weatherTypes.includes(weather)) {
-    $('weatherSelect').value = preferences.weather;
-    return;
+// A small non-modal paper menu: arrow keys move focus; activation changes weather.
+const weatherMenu = $('weatherMenu');
+const weatherButton = $('weatherButton');
+let weatherTabTimer = null;
+function closeWeatherMenu(restoreFocus = false) {
+  clearTimeout(weatherTabTimer);
+  const wasOpen = !weatherMenu.hidden;
+  weatherMenu.hidden = true;
+  weatherButton.setAttribute('aria-expanded', 'false');
+  if (wasOpen && restoreFocus) weatherButton.focus({ preventScroll: true });
+}
+function focusWeatherChoice(index) {
+  weatherChoices.forEach((choice, i) => { choice.tabIndex = i === index ? 0 : -1; });
+  weatherChoices[index].focus({ preventScroll: true });
+}
+function openWeatherMenu(index = weatherTypes.indexOf(preferences.weather)) {
+  clearTimeout(weatherTabTimer);
+  weatherMenu.hidden = false;
+  weatherButton.setAttribute('aria-expanded', 'true');
+  focusWeatherChoice(index);
+}
+function chooseWeather(weather) {
+  if (!weatherTypes.includes(weather)) return false;
+  if (weather !== preferences.weather) {
+    preferences.weather = weather;
+    savePreferences();
+    catController.reactToWeather(weather);
   }
-  if (weather === preferences.weather) return;
-  preferences.weather = weather;
-  savePreferences();
-  catController.reactToWeather(weather);
+  return true;
+}
+weatherButton.addEventListener('click', () => {
+  if (weatherMenu.hidden) openWeatherMenu();
+  else closeWeatherMenu(true);
 });
+weatherButton.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    event.preventDefault();
+    openWeatherMenu(event.key === 'ArrowDown' ? 0 : weatherChoices.length - 1);
+  } else if (event.key === 'Escape' && !weatherMenu.hidden) {
+    event.preventDefault();
+    closeWeatherMenu(true);
+  }
+});
+weatherChoices.forEach((choice, index) => {
+  choice.addEventListener('click', () => {
+    if (chooseWeather(choice.dataset.weatherChoice)) closeWeatherMenu(true);
+  });
+  choice.addEventListener('keydown', (event) => {
+    const moves = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 2, ArrowUp: -2 };
+    let next;
+    if (Object.hasOwn(moves, event.key)) next = (index + moves[event.key] + weatherChoices.length) % weatherChoices.length;
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = weatherChoices.length - 1;
+    else return;
+    event.preventDefault();
+    focusWeatherChoice(next);
+  });
+});
+weatherMenu.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    event.stopPropagation();
+    closeWeatherMenu(true);
+  } else if (event.key === 'Tab') {
+    // Let the browser move focus first, then hide the menu without pulling it back.
+    clearTimeout(weatherTabTimer);
+    weatherTabTimer = setTimeout(() => closeWeatherMenu(), 0);
+  }
+});
+document.addEventListener('pointerdown', (event) => {
+  if ($('weatherControl').contains(event.target)) return;
+  const focusTarget = event.target.closest?.('button, a[href], input, select, textarea, [tabindex]');
+  closeWeatherMenu(!focusTarget && weatherMenu.contains(document.activeElement));
+}, true);
+document.addEventListener('focusin', (event) => {
+  if (!$('weatherControl').contains(event.target)) closeWeatherMenu();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) closeWeatherMenu(weatherMenu.contains(document.activeElement));
+});
+closeWeatherMenu();
 
 // Decorative weather uses CSS only. Pause it while hidden or off screen.
 let windowInView = true;
@@ -191,6 +271,7 @@ let returnFocus = null;
 
 function openPanel(name, trigger) {
   if (activePanel) return;
+  closeWeatherMenu();
   const panel = panels[name];
   returnFocus = name === 'stickers' ? panel.trigger : (trigger || panel.trigger);
   activePanel = panel;

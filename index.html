@@ -28,7 +28,27 @@
       <div class="scene-top">
         <span><i aria-hidden="true"></i> 几未的小房间 <span class="room-number">ROOM 001</span></span>
         <div class="room-controls">
-          <label class="weather-control"><select id="weatherSelect" aria-label="窗外天气"><option value="clear">☀ 晴朗</option><option value="rain">☂ 下雨</option><option value="snow">❄ 下雪</option><option value="fog">≋ 起雾</option></select><span aria-hidden="true">⌄</span></label>
+          <div class="weather-control" id="weatherControl">
+            <svg class="weather-sprite" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+              <symbol id="weatherIconClear" viewBox="0 0 32 32"><circle cx="16" cy="16" r="5.5"/><path d="M16 3v3m0 20v3M3 16h3m20 0h3M7 7l2 2m14 14 2 2M7 25l2-2M23 9l2-2"/></symbol>
+              <symbol id="weatherIconRain" viewBox="0 0 32 32"><path d="M9 20H8a5 5 0 0 1-.4-10 8 8 0 0 1 15.3 1A4.5 4.5 0 0 1 23 20h-1M12 24l-2 4m9-4-2 4m9-4-2 4"/></symbol>
+              <symbol id="weatherIconSnow" viewBox="0 0 32 32"><path d="M16 3v26M5 9l22 14M5 23 27 9M12 5l4 4 4-4M12 27l4-4 4 4M5 13l6-1-1-6M27 19l-6 1 1 6M5 19l6 1-1 6M27 13l-6-1 1-6"/></symbol>
+              <symbol id="weatherIconFog" viewBox="0 0 32 32"><path d="M8 9h17M4 16h23M9 23h18M4 9h1M5 23h1"/></symbol>
+            </defs></svg>
+            <button class="weather-trigger" id="weatherButton" aria-haspopup="menu" aria-expanded="false" aria-controls="weatherMenu" aria-label="窗外天气：晴朗，更换天气">
+              <svg class="weather-current-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use id="weatherCurrentIcon" href="#weatherIconClear"/></svg>
+              <span id="weatherButtonLabel">晴朗</span><svg class="weather-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="m3 4.5 3 3 3-3"/></svg>
+            </button>
+            <div class="weather-menu" id="weatherMenu" role="menu" aria-labelledby="weatherMenuTitle" hidden>
+              <p class="weather-menu-title" id="weatherMenuTitle">窗外，想要什么天气？</p>
+              <div class="weather-grid" role="none">
+                <button id="weatherChoiceClear" class="weather-choice" data-weather-choice="clear" role="menuitemradio" aria-checked="true" tabindex="-1"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#weatherIconClear"/></svg><span class="weather-choice-copy"><strong>晴朗</strong><small>一点日光</small></span><span class="weather-check" aria-hidden="true"></span></button>
+                <button id="weatherChoiceRain" class="weather-choice" data-weather-choice="rain" role="menuitemradio" aria-checked="false" tabindex="-1"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#weatherIconRain"/></svg><span class="weather-choice-copy"><strong>下雨</strong><small>听雨发呆</small></span><span class="weather-check" aria-hidden="true"></span></button>
+                <button id="weatherChoiceSnow" class="weather-choice" data-weather-choice="snow" role="menuitemradio" aria-checked="false" tabindex="-1"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#weatherIconSnow"/></svg><span class="weather-choice-copy"><strong>下雪</strong><small>慢慢飘落</small></span><span class="weather-check" aria-hidden="true"></span></button>
+                <button id="weatherChoiceFog" class="weather-choice" data-weather-choice="fog" role="menuitemradio" aria-checked="false" tabindex="-1"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#weatherIconFog"/></svg><span class="weather-choice-copy"><strong>起雾</strong><small>远处朦胧</small></span><span class="weather-check" aria-hidden="true"></span></button>
+              </div>
+            </div>
+          </div>
           <button id="themeButton" class="theme-button" aria-label="白天模式" aria-pressed="false"><span id="themeIcon" aria-hidden="true">☾</span><span id="themeText">切到白天</span></button>
         </div>
       </div>
