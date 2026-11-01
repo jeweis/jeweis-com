@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const hoverPreference = window.matchMedia('(hover: hover) and (pointer: fine)');
 
-// Only two local preferences are stored; no accounts, requests or visitor tracking.
+// Room preferences and Dixi's discovery flag stay on this device. No visitor tracking.
 const preferenceKey = 'jw-room-preferences-v1';
 let preferences = { day: false, lampOn: true };
 try {
@@ -42,11 +42,109 @@ $('lampButton').addEventListener('click', () => {
   savePreferences();
 });
 
+// Discovery is separate from petting: the bubble never steals focus or blocks the cat.
+const discoveryKey = 'jw-dixi-discovered-v1';
+let dixiDiscovered = false;
+try { dixiDiscovered = localStorage.getItem(discoveryKey) === 'true'; } catch { /* Optional. */ }
+$('stickerButton').hidden = !dixiDiscovered;
+function discoverDixi(showSecret = true) {
+  const firstDiscovery = !dixiDiscovered;
+  dixiDiscovered = true;
+  $('stickerButton').hidden = false;
+  try { localStorage.setItem(discoveryKey, 'true'); } catch { /* Still works for this visit. */ }
+  if (firstDiscovery && showSecret) $('catSecret').hidden = false;
+}
+function dismissCatSecret() {
+  // A dismissed bubble must not leave keyboard focus inside a hidden subtree.
+  if ($('catSecret').contains(document.activeElement)) $('stickerButton').focus({ preventScroll: true });
+  $('catSecret').hidden = true;
+}
+$('closeCatSecret').addEventListener('click', dismissCatSecret);
+
+const stickerPacks = [
+  {
+    title: '迪西有话说',
+    description: '有点小情绪，也有很多爱。贴贴、求投喂、先趴会儿，让迪西替你说。',
+    previews: ['早呀', '思索', '不嘻嘻', '投喂一下'],
+    url: 'https://sticker.weixin.qq.com/cgi-bin/mmemoticon-bin/emoticonview?oper=single&t=shop/detail&productid=aL2PCfwK/89qO7sF6/+I+UDhfwEjhec2ZNvdnLLJRd/NhJJF3ZgKfeM1aJH8qQhtucdwo9vzxtzNG5FscLPIT4d7qCNx1K4KvlZP3WPsWD8U=',
+  },
+  {
+    title: '迪西有点皮',
+    description: '看着挺老实，其实有点小心思。会装乖、会嘴硬，也会翻车后立刻认怂。',
+    previews: ['包的', '算了算了', '已老实', '溜了'],
+    url: 'https://sticker.weixin.qq.com/cgi-bin/mmemoticon-bin/emoticonview?oper=single&t=shop/detail&productid=aL2PCfwK/89qO7sF6/+I+UDhfwEjhec2ZNvdnLLJRd/Piu/fPNMIXIfheJ+v8yyZ1pw2zZXug3VaI1snJBiDi6Ma4d93+5IvvbYWSVeJsd+o=',
+  },
+];
+let selectedPack = 0;
+let showingWechat = false;
+const stickerTabs = [...document.querySelectorAll('[data-sticker-pack]')];
+function mountWechatFrame() {
+  const pack = stickerPacks[selectedPack];
+  const iframe = document.createElement('iframe');
+  iframe.title = `微信表情商店：${pack.title}`;
+  iframe.src = pack.url;
+  iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+  $('stickerEmbed').replaceChildren(iframe);
+}
+function setWechatExpanded(expanded) {
+  showingWechat = expanded;
+  $('stickerEmbedButton').setAttribute('aria-expanded', String(expanded));
+  $('stickerEmbedButton').textContent = expanded ? '收起微信原页 −' : '查看微信原页 ＋';
+  $('stickerEmbed').hidden = !expanded;
+  $('stickerEmbedHint').hidden = !expanded;
+  if (expanded) mountWechatFrame();
+  else $('stickerEmbed').replaceChildren();
+}
+function selectStickerPack(index) {
+  selectedPack = index;
+  const pack = stickerPacks[index];
+  const prefix = `assets/stickers/pack-${index + 1}`;
+  stickerTabs.forEach((tab, i) => {
+    tab.setAttribute('aria-selected', String(i === index));
+    tab.tabIndex = i === index ? 0 : -1;
+  });
+  $('stickerPackContent').setAttribute('aria-labelledby', `stickerTab${index}`);
+  $('stickerPackTitle').textContent = pack.title;
+  $('stickerPackDescription').textContent = pack.description;
+  $('stickerCover').src = `${prefix}-cover.png`;
+  $('stickerCover').alt = `${pack.title}封面，主角迪西`;
+  $('stickerQr').src = `${prefix}-qr.png`;
+  $('stickerQr').alt = `${pack.title}的官方微信二维码`;
+  $('stickerExternalLink').href = pack.url;
+  $('stickerPreviewGrid').replaceChildren(...pack.previews.map((label, i) => {
+    const image = document.createElement('img');
+    image.src = `${prefix}-preview-${i + 1}.png`;
+    image.alt = `${pack.title}：${label}`;
+    image.width = 120;
+    image.height = 120;
+    image.decoding = 'async';
+    return image;
+  }));
+  // Replacing the frame unloads the previous pack; two WeChat pages never run together.
+  if (showingWechat) mountWechatFrame();
+}
+stickerTabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => selectStickerPack(index));
+  tab.addEventListener('keydown', (event) => {
+    let next;
+    if (event.key === 'ArrowRight') next = (index + 1) % stickerTabs.length;
+    else if (event.key === 'ArrowLeft') next = (index - 1 + stickerTabs.length) % stickerTabs.length;
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = stickerTabs.length - 1;
+    else return;
+    event.preventDefault();
+    selectStickerPack(next);
+    stickerTabs[next].focus();
+  });
+});
+$('stickerEmbedButton').addEventListener('click', () => setWechatExpanded(!showingWechat));
+
 // Each detail panel has its own accessible title, close control and focus return.
 const panels = {
   project: { dialog: $('projectDialog'), trigger: $('computerButton') },
   music: { dialog: $('musicDialog'), trigger: $('playerButton') },
   note: { dialog: $('noteDialog'), trigger: $('noteButton') },
+  stickers: { dialog: $('stickersDialog'), trigger: $('stickerButton') },
 };
 let activePanel = null;
 let returnFocus = null;
@@ -54,8 +152,13 @@ let returnFocus = null;
 function openPanel(name, trigger) {
   if (activePanel) return;
   const panel = panels[name];
-  returnFocus = trigger || panel.trigger;
+  returnFocus = name === 'stickers' ? panel.trigger : (trigger || panel.trigger);
   activePanel = panel;
+  if (name === 'stickers') {
+    discoverDixi(false);
+    selectStickerPack(selectedPack);
+  }
+  dismissCatSecret();
   panel.trigger.setAttribute('aria-expanded', 'true');
   if (name === 'music') {
     const iframe = document.createElement('iframe');
@@ -82,6 +185,7 @@ Object.entries(panels).forEach(([name, panel]) => {
   panel.dialog.addEventListener('close', () => {
     // Removing the frame also stops playback; no hidden audio remains.
     if (name === 'music') $('musicEmbed').replaceChildren();
+    if (name === 'stickers') setWechatExpanded(false);
     panel.trigger.setAttribute('aria-expanded', 'false');
     activePanel = null;
     returnFocus?.focus({ preventScroll: true });
@@ -111,6 +215,7 @@ plugs.forEach((button, index) => {
 
 let speechTimer;
 function whisper(text) {
+  dismissCatSecret();
   clearTimeout(speechTimer);
   $('speech').textContent = text;
   $('speech').classList.add('visible');
@@ -126,12 +231,12 @@ const catController = (() => {
   const cat = $('catButton');
   const hint = $('catHint');
   const labels = {
-    sleeping: ['它好像睡着了。轻轻摸一下？', '摸摸小猫，它正在睡觉'],
-    alert: ['耳朵动了一下。它发现你了。', '摸摸小猫，它正看着你'],
-    awake: ['醒了。要再伸个懒腰吗？', '再摸一下，让小猫伸懒腰'],
-    stretching: ['一个很长——的懒腰。', '小猫正在伸懒腰'],
-    turned: ['好吧，给它留一点独处时间。', '小猫背过身去了，等它休息'],
-    shifting: ['它找到了一个更舒服的位置。', '小猫正在换姿势'],
+    sleeping: ['迪西好像睡着了。轻轻摸一下？', '摸摸迪西，它正在睡觉'],
+    alert: ['耳朵动了一下。迪西发现你了。', '摸摸迪西，它正看着你'],
+    awake: ['迪西醒了。要再伸个懒腰吗？', '再摸一下，让迪西伸懒腰'],
+    stretching: ['一个很长——的懒腰。', '迪西正在伸懒腰'],
+    turned: ['好吧，给迪西留一点独处时间。', '迪西背过身去了，等它休息'],
+    shifting: ['迪西找到了一个更舒服的位置。', '迪西正在换姿势'],
   };
   let state = 'sleeping';
   let behaviorTimer;
@@ -193,6 +298,7 @@ const catController = (() => {
     clickCount++;
     lastClick = now;
     if (clickCount === 1) {
+      discoverDixi();
       setState('awake');
       behaviorTimer = setTimeout(sleep, 4200);
     } else if (clickCount === 2) {
@@ -244,6 +350,9 @@ const catController = (() => {
   scheduleIdle();
   return { pause, resume };
 })();
+
+// A direct link can share the discovered shop without making visitors repeat the egg.
+if (window.location?.hash === '#dixi') openPanel('stickers', $('stickerButton'));
 
 function updateClock() {
   const now = new Date();

@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 // A deterministic clock verifies recovery/cleanup boundaries without waiting
 // minutes or loading a third-party music frame. Browser layout is checked apart.
-function room({ reduced = false, storageBlocked = false, stored = null } = {}) {
+function room({ reduced = false, storageBlocked = false, stored = null, discovered = false, hash = '' } = {}) {
   let now = 0;
   let nextId = 0;
   const timers = new Map();
@@ -54,6 +54,7 @@ function room({ reduced = false, storageBlocked = false, stored = null } = {}) {
     click() { this.fire('click'); }
     focus() { document.activeElement = this; this.fire('focus'); }
     replaceChildren(...children) { this.children = children; }
+    contains(element) { return element === this || this.children.some((child) => child.contains(element)); }
     querySelector(selector) { if (selector === '[data-close]') return this.closeButton; }
     querySelectorAll(selector) { if (selector === 'i') return this.lights; return []; }
     showModal() { this.open = true; }
@@ -74,28 +75,41 @@ function room({ reduced = false, storageBlocked = false, stored = null } = {}) {
     plug.setAttribute('aria-pressed', 'false');
     return plug;
   });
-  const shortcuts = ['project', 'music', 'note'].map((name) => {
+  const shortcuts = ['project', 'music', 'note', 'stickers'].map((name) => {
     const button = new Element();
     button.dataset.open = name;
     return button;
   });
-  document.querySelectorAll = (selector) => selector === '[data-plug]' ? plugs : selector === '[data-open]' ? shortcuts : [];
+  const stickerTabs = [elements.stickerTab0, elements.stickerTab1];
+  document.querySelectorAll = (selector) => selector === '[data-plug]' ? plugs
+    : selector === '[data-open]' ? shortcuts
+      : selector === '[data-sticker-pack]' ? stickerTabs : [];
+  elements.catSecret.hidden = true;
+  elements.catSecret.children = [shortcuts[3], elements.closeCatSecret];
   elements.hub.lights = Array.from({ length: 3 }, () => new Element());
-  for (const name of ['project', 'music', 'note']) elements[`${name}Dialog`].closeButton = new Element();
+  for (const name of ['project', 'music', 'note', 'stickers']) elements[`${name}Dialog`].closeButton = new Element();
   const media = { reduced: { matches: reduced, addEventListener() {} }, hover: { matches: true, addEventListener() {} } };
   const localStorage = {
     value: stored,
-    getItem() { if (storageBlocked) throw Error('denied'); return this.value; },
-    setItem(key, value) { if (storageBlocked) throw Error('denied'); this.value = value; },
+    flags: new Map(discovered ? [['jw-dixi-discovered-v1', 'true']] : []),
+    getItem(key) {
+      if (storageBlocked) throw Error('denied');
+      return key === 'jw-room-preferences-v1' ? this.value : (this.flags.get(key) ?? null);
+    },
+    setItem(key, value) {
+      if (storageBlocked) throw Error('denied');
+      if (key === 'jw-room-preferences-v1') this.value = value;
+      else this.flags.set(key, value);
+    },
   };
   const context = vm.createContext({
-    document, window: { matchMedia: (query) => query.includes('reduced-motion') ? media.reduced : media.hover },
+    document, window: { location: { hash }, matchMedia: (query) => query.includes('reduced-motion') ? media.reduced : media.hover },
     localStorage, performance: { now: () => now }, setTimeout: setTimer, clearTimeout: (id) => timers.delete(id),
     setInterval: () => 0, requestAnimationFrame: (fn) => setTimer(fn, 16), cancelAnimationFrame: (id) => timers.delete(id),
     console, Intl, Date,
   });
   vm.runInContext(readFileSync(resolve(__dirname, '../app.js'), 'utf8'), context);
-  return { elements, advance, document, localStorage, plugs, shortcuts };
+  return { elements, advance, document, localStorage, plugs, shortcuts, stickerTabs };
 }
 
 test('cat: tap, stretch, turn away, recover; extra taps do not extend refusal', () => {
@@ -192,4 +206,104 @@ test('preferences: saved booleans restore independently of malformed fields', ()
   assert.equal(elements.lampButton.getAttribute('aria-pressed'), 'true');
   elements.lampButton.click();
   assert.deepEqual(JSON.parse(localStorage.value), { day: true, lampOn: false });
+});
+
+test('Dixi discovery: first tap reveals invitation without opening a dialog or interrupting petting', () => {
+  const { elements, document, localStorage, advance } = room();
+  assert.equal(elements.stickerButton.hidden, true);
+  elements.catButton.focus();
+  elements.catButton.click();
+  assert.equal(elements.catSecret.hidden, false);
+  assert.equal(elements.stickerButton.hidden, false);
+  assert.equal(document.activeElement, elements.catButton);
+  assert.equal(elements.stickersDialog.open, undefined);
+  assert.equal(localStorage.flags.get('jw-dixi-discovered-v1'), 'true');
+  elements.catButton.click();
+  assert.equal(elements.catButton.dataset.state, 'stretching');
+  elements.catButton.click();
+  assert.equal(elements.catButton.dataset.state, 'turned');
+  assert.equal(elements.catSecret.hidden, true);
+  assert.equal(elements.stickerButton.hidden, false);
+  advance(4000);
+  elements.catButton.click();
+  assert.equal(elements.catSecret.hidden, true);
+});
+
+test('Dixi discovery: remembered discovery shows a quiet reusable link, not another pop-up', () => {
+  const { elements } = room({ discovered: true });
+  assert.equal(elements.stickerButton.hidden, false);
+  elements.catButton.click();
+  assert.equal(elements.catSecret.hidden, true);
+});
+
+test('Dixi discovery: denied storage does not break the secret or room preferences', () => {
+  const { elements } = room({ storageBlocked: true });
+  elements.catButton.click();
+  assert.equal(elements.catSecret.hidden, false);
+  elements.closeCatSecret.click();
+  assert.equal(elements.catSecret.hidden, true);
+  elements.stickerButton.click();
+  assert.equal(elements.stickersDialog.open, true);
+});
+
+test('sticker packs: native preview is lazy; QR, artwork and external URL switch together', () => {
+  const { elements, stickerTabs } = room({ discovered: true });
+  assert.equal(elements.stickerPreviewGrid.children.length, 0);
+  assert.equal(elements.stickerEmbed.children.length, 0);
+  elements.stickerButton.click();
+  assert.equal(elements.stickerPreviewGrid.children.length, 4);
+  assert.equal(elements.stickerEmbed.children.length, 0);
+  assert.equal(elements.stickerPackTitle.textContent, '迪西有话说');
+  const firstLink = elements.stickerExternalLink.href;
+  stickerTabs[1].click();
+  assert.equal(elements.stickerPackTitle.textContent, '迪西有点皮');
+  assert.match(elements.stickerQr.src, /pack-2-qr.png$/);
+  assert.match(elements.stickerCover.src, /pack-2-cover.png$/);
+  assert.match(elements.stickerPreviewGrid.children[0].src, /pack-2-preview-1.png$/);
+  assert.notEqual(elements.stickerExternalLink.href, firstLink);
+  assert.equal(stickerTabs[1].getAttribute('aria-selected'), 'true');
+  assert.equal(stickerTabs[0].tabIndex, -1);
+});
+
+test('sticker iframe: explicit opt-in, only one active frame, removed on collapse and close', () => {
+  const { elements, stickerTabs } = room({ discovered: true });
+  elements.stickerButton.click();
+  elements.stickerEmbedButton.click();
+  const firstFrame = elements.stickerEmbed.children[0];
+  assert.equal(elements.stickerEmbed.children.length, 1);
+  assert.equal(firstFrame.title, '微信表情商店：迪西有话说');
+  stickerTabs[1].click();
+  assert.equal(elements.stickerEmbed.children.length, 1);
+  assert.notEqual(elements.stickerEmbed.children[0], firstFrame);
+  assert.equal(elements.stickerEmbed.children[0].src, elements.stickerExternalLink.href);
+  elements.stickerEmbedButton.click();
+  assert.equal(elements.stickerEmbed.children.length, 0);
+  elements.stickerEmbedButton.click();
+  elements.stickersDialog.close();
+  assert.equal(elements.stickerEmbed.children.length, 0);
+  assert.equal(elements.stickerEmbedButton.getAttribute('aria-expanded'), 'false');
+});
+
+test('secret-triggered dialog closes back to visible persistent link; direct sharing also works', () => {
+  const { elements, shortcuts, document } = room();
+  elements.catButton.click();
+  shortcuts[3].focus();
+  shortcuts[3].click();
+  assert.equal(elements.catSecret.hidden, true);
+  elements.stickersDialog.close();
+  assert.equal(document.activeElement, elements.stickerButton);
+  assert.equal(elements.stickerButton.hidden, false);
+  const direct = room({ hash: '#dixi' });
+  assert.equal(direct.elements.stickersDialog.open, true);
+  assert.equal(direct.elements.stickerButton.hidden, false);
+});
+
+test('sticker tabs: keyboard navigation selects pack and moves tab focus', () => {
+  const { elements, stickerTabs, document } = room({ discovered: true });
+  elements.stickerButton.click();
+  let prevented = false;
+  stickerTabs[0].fire('keydown', { key: 'ArrowRight', preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
+  assert.equal(document.activeElement, stickerTabs[1]);
+  assert.equal(elements.stickerPackContent.getAttribute('aria-labelledby'), 'stickerTab1');
 });

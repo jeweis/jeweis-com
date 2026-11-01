@@ -67,7 +67,7 @@
         <button class="mug object" id="mugButton" aria-label="端起咖啡休息一会儿">
           <svg viewBox="0 0 95 118" fill="none" aria-hidden="true"><g class="steam" stroke="#e4debe" stroke-opacity=".4" stroke-linecap="round" stroke-width="2"><path d="M33 34c-9-12 11-13 3-26"/><path d="M49 30c-9-10 10-15 3-26"/></g><ellipse cx="45" cy="107" rx="38" ry="6" fill="#17231e" opacity=".15"/><path d="M66 52h13c16 0 13 35-8 33" stroke="#c9c7a7" stroke-width="10"/><path d="M16 47h57v42q0 19-29 19T16 89Z" fill="#dad5b6"/><ellipse cx="44.5" cy="48" rx="28.5" ry="8" fill="#e6dfc4"/><ellipse cx="44.5" cy="48" rx="22.5" ry="4.5" fill="#5e4c38"/><text x="30" y="86" fill="#8c9278" font-family="serif" font-size="17">慢。</text></svg>
         </button>
-        <button class="cat object" id="catButton" data-state="sleeping" aria-label="摸摸小猫，它正在睡觉" aria-describedby="catHint">
+        <button class="cat object" id="catButton" data-state="sleeping" aria-label="摸摸迪西，它正在睡觉" aria-describedby="catHint">
           <svg class="cat-svg" viewBox="0 0 300 180" fill="none" aria-hidden="true">
             <defs>
               <linearGradient id="catFur" x2="0" y2="1"><stop stop-color="#636c65"/><stop offset=".45" stop-color="#4b5550"/><stop offset="1" stop-color="#38443e"/></linearGradient>
@@ -105,7 +105,13 @@
           </svg>
           <span class="cat-zzz" aria-hidden="true">z<span>z</span></span>
         </button>
-        <span class="cat-hint" id="catHint">它好像睡着了。轻轻摸一下？</span>
+        <span class="cat-hint" id="catHint">迪西好像睡着了。轻轻摸一下？</span>
+        <aside class="cat-secret" id="catSecret" aria-label="迪西的小秘密" hidden>
+          <button class="secret-close" id="closeCatSecret" aria-label="收起迪西的小秘密">×</button>
+          <p>我叫迪西。</p><p>除了睡觉，偶尔也在微信里上班。</p>
+          <button class="secret-link" data-open="stickers" aria-haspopup="dialog" aria-controls="stickersDialog">看看我的表情包 ↗</button>
+        </aside>
+        <button class="cat-album-link" id="stickerButton" aria-haspopup="dialog" aria-controls="stickersDialog" hidden>迪西的表情包 <span aria-hidden="true">↗</span></button>
         <div class="scene-whisper" id="speech" role="status" aria-live="polite"></div>
       </div>
       <div class="scene-bottom"><span>不用着急，灵感也在休息。</span><span>MAKE YOURSELF AT HOME <span aria-hidden="true">✳</span></span></div>
@@ -126,5 +132,24 @@
     <div class="panel-content"><p class="eyebrow">02 / THINGS I MAKE</p><div class="album-art" aria-hidden="true"><span class="album-orbit"></span><span class="album-name">你爱的<br>样子</span><span class="album-small">SHAPE OF YOUR LOVE<br>2017 · A SONG BY JW</span><span class="album-star">✳</span></div><h2 id="musicTitle">你爱的样子</h2><p class="song-meta">2017 · 单曲 · 03:58<span>词 / 曲 / 编曲 / 演唱</span></p><p class="panel-copy">有些心情写进代码里，<br>有些，留在一首歌里。</p><div id="musicEmbed" class="music-embed"></div><p class="embed-hint">轻按播放器开始听。关闭这张卡片，音乐也会停下。</p><a class="text-link" href="https://music.163.com/#/song?id=474447967" target="_blank" rel="noopener noreferrer">没听到声音？去网易云收听 ↗</a></div>
   </dialog>
   <dialog id="noteDialog" class="detail-panel note-panel" aria-labelledby="noteTitle"><button class="close-panel" data-close aria-label="收起便签">×</button><div class="panel-content"><p class="eyebrow">A NOTE FOR YOU</p><h2 id="noteTitle">给路过的你。</h2><div class="note-copy"><p>这里是几未同学的小角落。<br>有一个慢慢打磨的项目，<br>一首留在过去的歌，<br>还有一些没想好要做成什么的想法。</p><p>不必每一天都很有成果。<br>能做一点自己喜欢的事，就很好。</p><p>如果你也刚好路过，<br>希望这里能让你放松一小会儿。</p><p class="signature">几未同学<br><small>写于某个不想睡的晚上</small></p></div></div></dialog>
+  <dialog id="stickersDialog" class="detail-panel stickers-panel" aria-labelledby="stickersTitle">
+    <div class="panel-bar"><span>DIXI · WECHAT STICKERS</span><button class="close-panel" data-close aria-label="关闭迪西的微信营业部">×</button></div>
+    <div class="panel-content">
+      <p class="eyebrow">YOU FOUND DIXI'S LITTLE SECRET.</p>
+      <h2 id="stickersTitle">迪西的微信营业部</h2>
+      <p class="stickers-intro">本职：睡觉。副业：替你说话。<br>这是几未同学给迪西做的两套微信表情包。</p>
+      <div class="sticker-tabs" role="tablist" aria-label="选择迪西的表情包">
+        <button id="stickerTab0" role="tab" data-sticker-pack="0" aria-selected="true" aria-controls="stickerPackContent">01 · 迪西有话说</button>
+        <button id="stickerTab1" role="tab" data-sticker-pack="1" aria-selected="false" aria-controls="stickerPackContent" tabindex="-1">02 · 迪西有点皮</button>
+      </div>
+      <section id="stickerPackContent" class="sticker-pack" role="tabpanel" aria-labelledby="stickerTab0">
+        <div class="sticker-pack-heading"><img id="stickerCover" alt="" width="76" height="76"><div><h3 id="stickerPackTitle">迪西有话说</h3><p id="stickerPackDescription"></p></div></div>
+        <div class="sticker-preview-grid" id="stickerPreviewGrid" aria-label="表情静态预览"></div>
+        <div class="sticker-download"><img id="stickerQr" width="128" height="128" alt=""><div><p>把迪西带进你的聊天里。</p><p class="sticker-qr-hint">用微信扫一扫；手机上可保存二维码，在微信中识别。</p><a id="stickerExternalLink" class="primary-link" target="_blank" rel="noopener noreferrer">打开微信表情页 <span aria-hidden="true">↗</span></a></div></div>
+      </section>
+      <div class="sticker-original"><button id="stickerEmbedButton" aria-expanded="false" aria-controls="stickerEmbed">查看微信原页 <span aria-hidden="true">＋</span></button><div id="stickerEmbed" hidden></div><p class="sticker-embed-hint" id="stickerEmbedHint" hidden>微信原页为桌面排版，可能需要横向滚动。无法显示时，请使用上面的“打开微信表情页”。</p></div>
+      <p class="sticker-credit">主角：迪西 · 制作：几未同学 · 这里是部分静态预览，完整表情请到微信查看。</p>
+    </div>
+  </dialog>
 </body>
 </html>
