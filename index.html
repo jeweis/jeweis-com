@@ -25,19 +25,39 @@
       <p class="welcome">随便坐坐。<br>桌上的东西，都可以碰。<span aria-hidden="true">↙</span></p>
     </section>
     <section class="workspace" aria-label="几未同学的互动工作台">
-      <div class="scene-top"><span><i aria-hidden="true"></i> 几未的小房间 <span class="room-number">ROOM 001</span></span><button id="themeButton" class="theme-button" aria-label="白天模式" aria-pressed="false"><span id="themeIcon" aria-hidden="true">☾</span><span id="themeText">切到白天</span></button></div>
-      <div class="scene" id="scene">
+      <div class="scene-top">
+        <span><i aria-hidden="true"></i> 几未的小房间 <span class="room-number">ROOM 001</span></span>
+        <div class="room-controls">
+          <label class="weather-control"><select id="weatherSelect" aria-label="窗外天气"><option value="clear">☀ 晴朗</option><option value="rain">☂ 下雨</option><option value="snow">❄ 下雪</option><option value="fog">≋ 起雾</option></select><span aria-hidden="true">⌄</span></label>
+          <button id="themeButton" class="theme-button" aria-label="白天模式" aria-pressed="false"><span id="themeIcon" aria-hidden="true">☾</span><span id="themeText">切到白天</span></button>
+        </div>
+      </div>
+      <div class="scene" id="scene" data-weather="clear">
         <div class="ambient-glow" aria-hidden="true"></div>
-        <div class="window" aria-hidden="true">
-          <svg viewBox="0 0 204 240" fill="none"><defs><linearGradient id="skyGradient" x2="0" y2="1"><stop stop-color="var(--sky-top)"/><stop offset="1" stop-color="var(--sky-bottom)"/></linearGradient></defs>
+        <div class="window" id="roomWindow" aria-hidden="true">
+          <svg viewBox="0 0 204 240" fill="none">
+            <defs>
+              <linearGradient id="skyGradient" x2="0" y2="1"><stop stop-color="var(--sky-top)"/><stop offset="1" stop-color="var(--sky-bottom)"/></linearGradient>
+              <clipPath id="windowGlass"><rect x="17" y="14" width="170" height="197"/></clipPath>
+              <pattern id="rainPattern" width="34" height="48" patternUnits="userSpaceOnUse"><path d="m12 1-5 15m23 12-4 12" stroke="#cadbd3" stroke-width="1" stroke-linecap="round" opacity=".65"/></pattern>
+              <pattern id="snowPattern" width="96" height="96" patternUnits="userSpaceOnUse" fill="#f1f4e7"><circle cx="13" cy="18" r="1.7"/><circle cx="60" cy="45" r="2.2"/><circle cx="31" cy="78" r="1.3"/><circle cx="87" cy="9" r="1.2"/></pattern>
+              <linearGradient id="fogGradient" x2="0" y2="1"><stop stop-color="#d0d7cd" stop-opacity=".18"/><stop offset=".55" stop-color="#d0d7cd" stop-opacity=".6"/><stop offset="1" stop-color="#d0d7cd" stop-opacity=".8"/></linearGradient>
+            </defs>
             <rect x="8" y="5" width="188" height="216" rx="3" fill="#796b55"/><rect x="17" y="14" width="170" height="197" fill="url(#skyGradient)"/>
+            <g clip-path="url(#windowGlass)">
             <g class="night-sky" fill="#e8d9a2"><circle cx="143" cy="53" r="18"/><circle cx="135" cy="45" r="16" fill="var(--sky-top)"/><path d="m46 42 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" opacity=".7"/><circle cx="88" cy="76" r="1.3"/><circle cx="158" cy="108" r="1"/><circle cx="65" cy="117" r="1"/></g>
             <g class="day-sky"><circle cx="143" cy="53" r="19" fill="#f2d193"/><path d="M23 78h43m-30-7h38m61 40h37" stroke="#e5e6d0" stroke-width="8" stroke-linecap="round"/></g>
-            <path d="M17 174h17v-22h30v35h19v-49h29v27h25v-12h25v23h25v35H17Z" fill="var(--skyline)"/><path d="M45 169v5m51-22v5m10 15v5m42-10v5m-52 18v5" stroke="#d7bb6d" stroke-width="3" opacity=".45"/>
+            <path class="city-silhouette" d="M17 174h17v-22h30v35h19v-49h29v27h25v-12h25v23h25v35H17Z" fill="var(--skyline)"/><path d="M45 169v5m51-22v5m10 15v5m42-10v5m-52 18v5" stroke="#d7bb6d" stroke-width="3" opacity=".45"/>
+            <g class="weather-clouds" fill="#a6b9b0"><ellipse cx="40" cy="29" rx="54" ry="17"/><ellipse cx="117" cy="23" rx="62" ry="15"/><ellipse cx="181" cy="36" rx="42" ry="15"/></g>
+            <g class="weather-rain"><rect class="rain-back" x="0" y="-60" width="220" height="340" fill="url(#rainPattern)"/><rect class="rain-near" x="16" y="-60" width="220" height="340" fill="url(#rainPattern)"/></g>
+            <g class="weather-snow"><g class="snow-drift"><rect class="snow-far" x="-40" y="-100" width="300" height="420" fill="url(#snowPattern)"/><rect class="snow-near" x="-4" y="-100" width="300" height="420" fill="url(#snowPattern)"/></g></g>
+            <g class="weather-fog"><rect x="17" y="14" width="170" height="197" fill="url(#fogGradient)"/><path class="fog-band" d="M0 104q47-14 100 0t110-2M-5 161q60-16 114-2t105-5" stroke="#d6ddd1" stroke-width="13" stroke-opacity=".2" stroke-linecap="round"/></g>
+            </g>
             <path d="M102 14v197M17 111h170" stroke="#796b55" stroke-width="6"/><path d="M11 9h181v207H11Z" stroke="#9c8966" stroke-opacity=".4" stroke-width="2"/>
             <rect x="0" y="219" width="204" height="11" rx="2" fill="#97815c"/><path d="M8 230h188" stroke="#182824" stroke-opacity=".3" stroke-width="6"/>
+            <path class="window-snow-cap" d="M2 218q17-7 33-2t32-1q15-3 32 1t35-2q16-2 29 2t37 1v6H2Z" fill="#e5eddf"/>
           </svg>
-          <span class="window-caption">一点灵感，一点夜色。</span>
+          <span class="window-caption" id="windowCaption">一点灵感，一点夜色。</span>
         </div>
         <button class="note object" id="noteButton" aria-label="展开几未同学给访客的便签" aria-haspopup="dialog" aria-controls="noteDialog"><span class="tape" aria-hidden="true"></span><span>记得抬头<br>看看月亮。</span><small>给路过的你 ↗</small></button>
         <div class="desk" aria-hidden="true"><div class="desk-surface"></div><div class="desk-edge"></div><div class="desk-leg left"></div><div class="desk-leg right"></div></div>
@@ -119,7 +139,10 @@
     </section>
     <nav class="room-nav" aria-label="房间里的内容"><button data-open="project"><span>01</span> 写的代码 <span aria-hidden="true">↗</span></button><button data-open="music"><span>02</span> 做的音乐 <span aria-hidden="true">↗</span></button><button data-open="note"><span>03</span> 一张便签 <span aria-hidden="true">↗</span></button></nav>
   </main>
-  <footer><span>© <span id="year">2026</span> 几未同学</span><span>保持好奇，偶尔离线。</span><a href="https://github.com/jeweis" target="_blank" rel="noopener noreferrer">GitHub ↗</a></footer>
+  <footer>
+    <div class="footer-main"><span>© <span id="year">2026</span> 几未同学</span><span>保持好奇，偶尔离线。</span><a href="https://github.com/jeweis" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div>
+    <p class="footer-filing"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">湘ICP备16005761号-3</a></p>
+  </footer>
 
   <dialog id="projectDialog" class="detail-panel project-panel" aria-labelledby="projectTitle">
     <div class="panel-bar"><span><i></i><i></i><i></i></span><span>~/mcpcat</span><button class="close-panel" data-close aria-label="关闭项目详情">×</button></div>

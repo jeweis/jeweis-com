@@ -6,18 +6,29 @@ const hoverPreference = window.matchMedia('(hover: hover) and (pointer: fine)');
 
 // Room preferences and Dixi's discovery flag stay on this device. No visitor tracking.
 const preferenceKey = 'jw-room-preferences-v1';
-let preferences = { day: false, lampOn: true };
+const weatherTypes = ['clear', 'rain', 'snow', 'fog'];
+let preferences = { day: false, lampOn: true, weather: 'clear' };
 try {
   const saved = JSON.parse(localStorage.getItem(preferenceKey));
   if (saved && typeof saved === 'object') {
     if (typeof saved.day === 'boolean') preferences.day = saved.day;
     if (typeof saved.lampOn === 'boolean') preferences.lampOn = saved.lampOn;
+    if (weatherTypes.includes(saved.weather)) preferences.weather = saved.weather;
   }
 } catch { /* The room also works when browser storage is unavailable. */ }
 
 function applyPreferences() {
   document.body.classList.toggle('day', preferences.day);
   $('scene').classList.toggle('lamp-off', !preferences.lampOn);
+  $('scene').dataset.weather = preferences.weather;
+  $('weatherSelect').value = preferences.weather;
+  const captions = {
+    clear: preferences.day ? '一点灵感，一点日光。' : '一点灵感，一点夜色。',
+    rain: '窗外小雨，屋里刚好。',
+    snow: '雪慢慢落，事情慢慢来。',
+    fog: '远处起雾，屋里有光。',
+  };
+  $('windowCaption').textContent = captions[preferences.weather];
   $('themeButton').setAttribute('aria-pressed', String(preferences.day));
   $('themeButton').setAttribute('aria-label', '白天模式');
   $('themeText').textContent = preferences.day ? '切到深夜' : '切到白天';
@@ -41,6 +52,35 @@ $('lampButton').addEventListener('click', () => {
   preferences.lampOn = !preferences.lampOn;
   savePreferences();
 });
+
+$('weatherSelect').addEventListener('change', () => {
+  const weather = $('weatherSelect').value;
+  if (!weatherTypes.includes(weather)) {
+    $('weatherSelect').value = preferences.weather;
+    return;
+  }
+  if (weather === preferences.weather) return;
+  preferences.weather = weather;
+  savePreferences();
+  catController.reactToWeather(weather);
+});
+
+// Decorative weather uses CSS only. Pause it while hidden or off screen.
+let windowInView = true;
+function syncWeatherMotion() {
+  $('scene').classList.toggle('weather-paused', document.hidden || !windowInView);
+}
+document.addEventListener('visibilitychange', syncWeatherMotion);
+if ('IntersectionObserver' in window) {
+  const weatherObserver = new IntersectionObserver((entries) => {
+    const entry = entries[entries.length - 1];
+    if (!entry) return;
+    windowInView = entry.isIntersecting;
+    syncWeatherMotion();
+  });
+  weatherObserver.observe($('roomWindow'));
+}
+syncWeatherMotion();
 
 // Discovery is separate from petting: the bubble never steals focus or blocks the cat.
 const discoveryKey = 'jw-dixi-discovered-v1';
@@ -237,6 +277,7 @@ const catController = (() => {
     stretching: ['一个很长——的懒腰。', '迪西正在伸懒腰'],
     turned: ['好吧，给迪西留一点独处时间。', '迪西背过身去了，等它休息'],
     shifting: ['迪西找到了一个更舒服的位置。', '迪西正在换姿势'],
+    watching: ['迪西也在看窗外的雪。', '迪西正在看雪'],
   };
   let state = 'sleeping';
   let behaviorTimer;
@@ -244,6 +285,7 @@ const catController = (() => {
   let pointerTimer;
   let clickCount = 0;
   let lastClick = -Infinity;
+  let lastWeatherReaction = -Infinity;
   let paused = false;
   let headFrame = 0;
 
@@ -278,7 +320,7 @@ const catController = (() => {
     scheduleIdle();
   }
   function wake() {
-    if (paused || ['stretching', 'turned', 'shifting'].includes(state)) return;
+    if (paused || ['stretching', 'turned', 'shifting', 'watching'].includes(state)) return;
     clearTimeout(idleTimer);
     clearTimeout(pointerTimer);
     if (state === 'sleeping') setState('alert');
@@ -347,8 +389,18 @@ const catController = (() => {
     if (document.hidden) pause();
     else if (!activePanel) resume();
   });
+  function reactToWeather(weather) {
+    const now = performance.now();
+    if (paused || document.hidden || motionPreference.matches || state !== 'sleeping'
+      || !['rain', 'snow'].includes(weather) || now - lastWeatherReaction < 20000
+      || Math.random() >= .35) return;
+    lastWeatherReaction = now;
+    clearTimeout(idleTimer);
+    setState(weather === 'snow' ? 'watching' : 'shifting');
+    behaviorTimer = setTimeout(sleep, 2500);
+  }
   scheduleIdle();
-  return { pause, resume };
+  return { pause, resume, reactToWeather };
 })();
 
 // A direct link can share the discovered shop without making visitors repeat the egg.

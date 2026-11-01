@@ -41,6 +41,11 @@ h1 span { font-family: "Songti SC", "STSong", serif; color: #78845e; }
 .scene-top { height: 48px; background: #e9ecdf; display: flex; align-items: center; justify-content: space-between; padding: 0 23px; font-size: 11px; letter-spacing: 1px; }
 .scene-top > span { display: flex; align-items: center; gap: 9px; }
 .room-number { color: #8e9984; font: 8px monospace; letter-spacing: 1.4px; margin-left: 14px; }
+.room-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.weather-control { position: relative; display: block; color: #617255; }
+.weather-control select { display: block; min-height: 36px; width: 94px; padding: 5px 23px 5px 11px; border: 1px solid #cdd5c0; border-radius: 24px; background: #f2f3e9; color: inherit; font-family: inherit; font-size: 11px; cursor: pointer; appearance: none; }
+.weather-control > span { position: absolute; right: 10px; top: 9px; font-size: 12px; pointer-events: none; }
+.weather-control select:focus-visible { outline: 3px solid #bc8d58; outline-offset: 4px; }
 .theme-button { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 5px 12px; border: 1px solid #cdd5c0; background: #f2f3e9; border-radius: 30px; font-size: 10px; color: #68765d; }
 #themeIcon { font-size: 17px; line-height: 1; }
 .scene { position: relative; height: clamp(490px, 45vw, 555px); background: linear-gradient(110deg, var(--wall-top), var(--wall-bottom)); isolation: isolate; overflow: hidden; transition: background 650ms; }
@@ -48,9 +53,40 @@ h1 span { font-family: "Songti SC", "STSong", serif; color: #78845e; }
 .ambient-glow { position: absolute; inset: 0; opacity: var(--light); background: radial-gradient(ellipse at 81% 60%, #f2c06c27, transparent 52%); transition: opacity 500ms; }
 .window { position: absolute; top: 7%; left: 7%; width: 18%; max-width: 210px; filter: drop-shadow(5px 9px 8px #102b2426); }
 .window svg { display: block; width: 100%; overflow: visible; }
-.window-caption { position: absolute; bottom: -24px; width: 100%; text-align: center; color: var(--room-text); font-family: "Songti SC", serif; font-size: 11px; letter-spacing: 2px; opacity: .7; transform: rotate(-3deg); }
+.window-caption { position: absolute; top: 12%; left: -23px; writing-mode: vertical-rl; color: var(--room-text); font-family: "Songti SC", serif; font-size: 10px; letter-spacing: 2px; opacity: .85; }
 .day-sky { opacity: 0; transition: opacity 600ms; }
 .night-sky { opacity: 1; transition: opacity 600ms; }
+/* Weather artwork stays inside windowGlass; only the small sill cap sits outside. */
+.weather-rain, .weather-snow, .weather-fog, .window-snow-cap { display: none; }
+.weather-clouds { opacity: 0; transition: opacity 650ms; }
+.city-silhouette { transition: opacity 650ms; }
+.scene[data-weather="rain"] { --sky-top: #30464d; --sky-bottom: #51656b; --wall-top: #253835; --wall-bottom: #344439; }
+.scene[data-weather="snow"] { --sky-top: #435660; --sky-bottom: #7f9397; --wall-top: #2b3d3d; --wall-bottom: #3b4943; }
+.scene[data-weather="fog"] { --sky-top: #5b6c6b; --sky-bottom: #9ca99e; --wall-top: #30403b; --wall-bottom: #424d40; }
+body.day .scene[data-weather="rain"] { --sky-top: #829b9f; --sky-bottom: #b5c2ba; --wall-top: #aabcae; --wall-bottom: #c3c9ad; }
+body.day .scene[data-weather="snow"] { --sky-top: #a2b8bf; --sky-bottom: #d5dfd6; --wall-top: #b7c8bd; --wall-bottom: #ced3b8; }
+body.day .scene[data-weather="fog"] { --sky-top: #a6b8b3; --sky-bottom: #d4dccd; --wall-top: #bac7b4; --wall-bottom: #ced0b3; }
+body:not(.day) .scene:not([data-weather="clear"]) .night-sky { opacity: .18; }
+body.day .scene:not([data-weather="clear"]) .day-sky { opacity: .4; }
+.scene[data-weather="rain"] .weather-clouds, .scene[data-weather="snow"] .weather-clouds { opacity: .22; }
+.scene[data-weather="rain"] .city-silhouette { opacity: .75; }
+.scene[data-weather="snow"] .city-silhouette { opacity: .65; }
+.scene[data-weather="fog"] .city-silhouette { opacity: .35; }
+.scene[data-weather="rain"] .weather-rain { display: inline; }
+.scene[data-weather="rain"] .rain-near { animation: room-rain 1.2s linear infinite; }
+.scene[data-weather="rain"] .rain-back { opacity: .35; animation: room-rain 1.9s linear infinite; }
+.scene[data-weather="snow"] .weather-snow, .scene[data-weather="snow"] .window-snow-cap { display: inline; }
+.weather-snow { fill: #f1f4e7; }
+.scene[data-weather="snow"] .snow-far { opacity: .45; animation: room-snow 20s linear infinite; }
+.scene[data-weather="snow"] .snow-near { opacity: .85; animation: room-snow 13s linear infinite; }
+.scene[data-weather="snow"] .snow-drift { animation: snow-sway 8s ease-in-out infinite alternate; }
+.scene[data-weather="fog"] .weather-fog { display: inline; }
+.scene[data-weather="fog"] .fog-band { animation: fog-sway 16s ease-in-out infinite alternate; }
+.weather-paused .weather-rain *, .weather-paused .weather-snow *, .weather-paused .weather-fog * { animation-play-state: paused !important; }
+@keyframes room-rain { from { transform: translateY(-48px); } to { transform: translateY(0); } }
+@keyframes room-snow { from { transform: translateY(-96px); } to { transform: translateY(0); } }
+@keyframes snow-sway { from { transform: translateX(-5px); } to { transform: translateX(5px); } }
+@keyframes fog-sway { from { transform: translateX(-5px); } to { transform: translateX(4px); } }
 .object { position: absolute; padding: 0; background: transparent; z-index: 3; }
 .object::after { content: ''; position: absolute; inset: -6px; border: 1px solid transparent; border-radius: 12px; pointer-events: none; transition: border-color 200ms; }
 .object:focus-visible { outline-offset: 9px; border-radius: 6px; }
@@ -119,6 +155,9 @@ h1 span { font-family: "Songti SC", "STSong", serif; color: #78845e; }
 .cat[data-state="turned"] .cat-head { transform: translateX(8px) rotate(13deg); }
 .cat[data-state="turned"] .cat-tail { animation: tail-grumpy 900ms ease-in-out 3; }
 .cat[data-state="shifting"] .cat-pose { transform: translateX(12px) rotate(1deg); }
+.cat[data-state="watching"] .cat-head { transform: translateY(-5px) rotate(-10deg); }
+.cat[data-state="watching"] .eyes-open { opacity: 1; animation: cat-blink 7s linear infinite; }
+.cat[data-state="watching"] .eyes-closed { opacity: 0; }
 .scene-whisper { position: absolute; bottom: 47%; right: 14%; z-index: 11; background: #f1ead6; color: #5e6b50; border-radius: 11px 11px 1px 11px; padding: 10px 15px; max-width: 245px; font-size: 11px; line-height: 1.8; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity 200ms, transform 200ms; box-shadow: 0 5px 15px #162c2520; }
 .scene-whisper.visible { opacity: 1; transform: translateY(0); }
 .scene-bottom { height: 42px; padding: 0 23px; display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: #859075; background: #e9ecdf; letter-spacing: .8px; }
@@ -129,8 +168,13 @@ h1 span { font-family: "Songti SC", "STSong", serif; color: #78845e; }
 .room-nav button:hover { border-color: #a7b197; }
 .room-nav button span:first-child { color: #a2aa94; font: 9px monospace; margin-right: 8px; }
 .room-nav button span:last-child { margin-left: 9px; color: #8a997a; }
-footer { border-top: 1px solid var(--line); padding: 23px 0 28px; display: flex; justify-content: space-between; font-size: 10px; color: #68765d; letter-spacing: .5px; }
+footer { border-top: 1px solid var(--line); padding: 23px 0 22px; display: flex; flex-wrap: wrap; font-size: 10px; color: #68765d; letter-spacing: .5px; }
+.footer-main { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 12px; }
 footer a { color: #718265; }
+.footer-filing { width: 100%; margin: 11px 0 0; text-align: center; font-size: 11px; letter-spacing: .3px; }
+.footer-filing a { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 6px; color: #626d5c; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; }
+.footer-filing a:hover { text-decoration-color: currentColor; }
+.footer-filing a:focus-visible { outline-offset: 2px; border-radius: 2px; }
 body.day { --wall-top: #bac8b4; --wall-bottom: #d1d1b1; --sky-top: #a5c4c6; --sky-bottom: #d2dfcd; --skyline: #8ba99f; --room-text: #5d705b; }
 body.day .day-sky { opacity: 1; }
 body.day .night-sky { opacity: 0; }
@@ -294,9 +338,11 @@ h2 { font: 500 31px/1.3 "Songti SC", "STSong", serif; margin: 0 0 16px; }
   .scene-top { height: 46px; padding: 0 12px; font-size: 10px; letter-spacing: .5px; }
   .room-number { display: none; }
   .theme-button { min-height: 36px; font-size: 9px; gap: 5px; padding: 5px 9px; }
+  .room-controls { gap: 6px; }
+  .weather-control select { width: 80px; font-size: 10px; padding-left: 9px; }
   .scene { height: 510px; }
   .window { left: 6%; top: 6%; width: 35%; max-width: 165px; }
-  .window-caption { bottom: -17px; font-size: 9px; letter-spacing: 1px; }
+  .window-caption { display: none; }
   .note { top: 8%; right: 10%; width: 78px; height: 90px; padding: 14px 9px; }
   .note > span:not(.tape) { font-size: 10px; }
   .note small { margin-top: 6px; font-size: 7px; }

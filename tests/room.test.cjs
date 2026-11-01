@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 // A deterministic clock verifies recovery/cleanup boundaries without waiting
 // minutes or loading a third-party music frame. Browser layout is checked apart.
-function room({ reduced = false, storageBlocked = false, stored = null, discovered = false, hash = '' } = {}) {
+function room({ reduced = false, storageBlocked = false, stored = null, discovered = false, hash = '', random = .5, observeWindow = false } = {}) {
   let now = 0;
   let nextId = 0;
   const timers = new Map();
@@ -102,14 +102,29 @@ function room({ reduced = false, storageBlocked = false, stored = null, discover
       else this.flags.set(key, value);
     },
   };
+  let observationCallback;
+  let observedWindow;
+  class FakeIntersectionObserver {
+    constructor(callback) { observationCallback = callback; }
+    observe(target) { observedWindow = target; }
+  }
   const context = vm.createContext({
-    document, window: { location: { hash }, matchMedia: (query) => query.includes('reduced-motion') ? media.reduced : media.hover },
+    document, window: {
+      location: { hash },
+      matchMedia: (query) => query.includes('reduced-motion') ? media.reduced : media.hover,
+      ...(observeWindow ? { IntersectionObserver: FakeIntersectionObserver } : {}),
+    },
+    IntersectionObserver: FakeIntersectionObserver,
+    Math: Object.assign(Object.create(Math), { random: () => random }),
     localStorage, performance: { now: () => now }, setTimeout: setTimer, clearTimeout: (id) => timers.delete(id),
     setInterval: () => 0, requestAnimationFrame: (fn) => setTimer(fn, 16), cancelAnimationFrame: (id) => timers.delete(id),
     console, Intl, Date,
   });
   vm.runInContext(readFileSync(resolve(__dirname, '../app.js'), 'utf8'), context);
-  return { elements, advance, document, localStorage, plugs, shortcuts, stickerTabs };
+  return { elements, advance, document, localStorage, plugs, shortcuts, stickerTabs,
+    setWindowVisible: (visible) => observationCallback?.((Array.isArray(visible) ? visible : [visible]).map((value) => ({ isIntersecting: value }))),
+    getObservedWindow: () => observedWindow,
+  };
 }
 
 test('cat: tap, stretch, turn away, recover; extra taps do not extend refusal', () => {
@@ -205,7 +220,7 @@ test('preferences: saved booleans restore independently of malformed fields', ()
   assert.equal(document.body.classList.contains('day'), true);
   assert.equal(elements.lampButton.getAttribute('aria-pressed'), 'true');
   elements.lampButton.click();
-  assert.deepEqual(JSON.parse(localStorage.value), { day: true, lampOn: false });
+  assert.deepEqual(JSON.parse(localStorage.value), { day: true, lampOn: false, weather: 'clear' });
 });
 
 test('Dixi discovery: first tap reveals invitation without opening a dialog or interrupting petting', () => {
@@ -306,4 +321,121 @@ test('sticker tabs: keyboard navigation selects pack and moves tab focus', () =>
   assert.equal(prevented, true);
   assert.equal(document.activeElement, stickerTabs[1]);
   assert.equal(elements.stickerPackContent.getAttribute('aria-labelledby'), 'stickerTab1');
+});
+
+test('weather: legacy settings restore with clear weather; invalid weather is ignored', () => {
+  for (const weather of [undefined, 'storm', '__proto__', 12, null]) {
+    const { elements, document } = room({ stored: JSON.stringify({ day: true, lampOn: false, weather }) });
+    assert.equal(elements.weatherSelect.value, 'clear');
+    assert.equal(elements.scene.dataset.weather, 'clear');
+    assert.equal(document.body.classList.contains('day'), true);
+    assert.equal(elements.scene.classList.contains('lamp-off'), true);
+  }
+});
+
+test('weather: saved weather, day and lamp restore independently; toggles preserve weather', () => {
+  const { elements, localStorage, document } = room({ stored: '{"day":true,"lampOn":false,"weather":"snow"}' });
+  assert.equal(elements.weatherSelect.value, 'snow');
+  assert.equal(elements.scene.dataset.weather, 'snow');
+  elements.themeButton.click();
+  elements.lampButton.click();
+  assert.equal(document.body.classList.contains('day'), false);
+  assert.equal(elements.scene.dataset.weather, 'snow');
+  assert.deepEqual(JSON.parse(localStorage.value), { day: false, lampOn: true, weather: 'snow' });
+});
+
+test('weather: selecting each weather updates the window and persists; invalid input is rejected', () => {
+  const { elements, localStorage } = room();
+  for (const weather of ['rain', 'snow', 'fog', 'clear']) {
+    elements.weatherSelect.value = weather;
+    elements.weatherSelect.fire('change');
+    assert.equal(elements.scene.dataset.weather, weather);
+    assert.equal(JSON.parse(localStorage.value).weather, weather);
+    assert.ok(elements.windowCaption.textContent.length > 0);
+  }
+  elements.weatherSelect.value = 'invalid';
+  elements.weatherSelect.fire('change');
+  assert.equal(elements.weatherSelect.value, 'clear');
+  assert.equal(elements.scene.dataset.weather, 'clear');
+});
+
+test('weather: storage denial and reduced motion still allow all weather choices without cat motion', () => {
+  const { elements, advance } = room({ storageBlocked: true, reduced: true, random: .1 });
+  for (const weather of ['rain', 'snow', 'fog']) {
+    elements.weatherSelect.value = weather;
+    elements.weatherSelect.fire('change');
+    assert.equal(elements.scene.dataset.weather, weather);
+  }
+  assert.notEqual(elements.catButton.dataset.state, 'watching');
+  assert.notEqual(elements.catButton.dataset.state, 'shifting');
+  advance(60000);
+  assert.notEqual(elements.catButton.dataset.state, 'watching');
+});
+
+test('weather: snow occasionally interests Dixi, with recovery and cooldown, without revealing the secret', () => {
+  const { elements, advance } = room({ random: .1 });
+  elements.weatherSelect.value = 'snow';
+  elements.weatherSelect.fire('change');
+  assert.equal(elements.catButton.dataset.state, 'watching');
+  assert.equal(elements.catSecret.hidden, true);
+  assert.equal(elements.stickerButton.hidden, true);
+  advance(2500);
+  assert.equal(elements.catButton.dataset.state, 'sleeping');
+  elements.weatherSelect.value = 'rain';
+  elements.weatherSelect.fire('change');
+  assert.equal(elements.catButton.dataset.state, 'sleeping');
+  advance(20000);
+  elements.weatherSelect.value = 'clear';
+  elements.weatherSelect.fire('change');
+  elements.weatherSelect.value = 'snow';
+  elements.weatherSelect.fire('change');
+  assert.equal(elements.catButton.dataset.state, 'watching');
+});
+
+test('weather: rain can cause a small reposition; normal petting takes priority and cancels recovery', () => {
+  const { elements, advance } = room({ random: .1 });
+  elements.weatherSelect.value = 'rain';
+  elements.weatherSelect.fire('change');
+  assert.equal(elements.catButton.dataset.state, 'shifting');
+  elements.catButton.click();
+  assert.equal(elements.catButton.dataset.state, 'awake');
+  elements.catButton.click();
+  elements.catButton.click();
+  elements.weatherSelect.value = 'snow';
+  elements.weatherSelect.fire('change');
+  assert.equal(elements.catButton.dataset.state, 'turned');
+  advance(2500);
+  assert.equal(elements.catButton.dataset.state, 'turned');
+  advance(1500);
+  assert.equal(elements.catButton.dataset.state, 'sleeping');
+});
+
+test('weather: reactions remain occasional and do not run behind an open dialog', () => {
+  const quiet = room({ random: .9 });
+  quiet.elements.weatherSelect.value = 'snow';
+  quiet.elements.weatherSelect.fire('change');
+  assert.notEqual(quiet.elements.catButton.dataset.state, 'watching');
+  const { elements } = room({ random: .1 });
+  elements.computerButton.click();
+  elements.weatherSelect.value = 'snow';
+  elements.weatherSelect.fire('change');
+  assert.equal(elements.catButton.dataset.state, 'sleeping');
+});
+
+test('weather: offscreen and hidden-page pauses combine without resuming too early', () => {
+  const { elements, document, setWindowVisible, getObservedWindow } = room({ observeWindow: true });
+  assert.equal(getObservedWindow(), elements.roomWindow);
+  setWindowVisible(false);
+  assert.equal(elements.scene.classList.contains('weather-paused'), true);
+  document.hidden = true;
+  document.fire('visibilitychange');
+  setWindowVisible(true);
+  assert.equal(elements.scene.classList.contains('weather-paused'), true);
+  document.hidden = false;
+  document.fire('visibilitychange');
+  assert.equal(elements.scene.classList.contains('weather-paused'), false);
+  setWindowVisible([true, false]);
+  assert.equal(elements.scene.classList.contains('weather-paused'), true);
+  setWindowVisible([false, true]);
+  assert.equal(elements.scene.classList.contains('weather-paused'), false);
 });
