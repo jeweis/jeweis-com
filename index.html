@@ -65,24 +65,37 @@
         </button>
         <button class="cat object" id="catButton" data-state="sleeping" aria-label="摸摸小猫，它正在睡觉" aria-describedby="catHint">
           <svg class="cat-svg" viewBox="0 0 300 180" fill="none" aria-hidden="true">
-            <defs><linearGradient id="catFur" x2="0" y2="1"><stop stop-color="#c49b6f"/><stop offset="1" stop-color="#a77a53"/></linearGradient><linearGradient id="catHeadFur" x2="0" y2="1"><stop stop-color="#d4ae7e"/><stop offset="1" stop-color="#bd9063"/></linearGradient></defs>
+            <defs>
+              <linearGradient id="catFur" x2="0" y2="1"><stop stop-color="#636c65"/><stop offset=".45" stop-color="#4b5550"/><stop offset="1" stop-color="#38443e"/></linearGradient>
+              <linearGradient id="catHeadFur" x2="0" y2="1"><stop stop-color="#626b63"/><stop offset="1" stop-color="#414d46"/></linearGradient>
+              <linearGradient id="catWhiteFur" x2="0" y2="1"><stop stop-color="#f0f0df"/><stop offset="1" stop-color="#d6dcc9"/></linearGradient>
+              <radialGradient id="catIris"><stop stop-color="#e6c56b"/><stop offset=".7" stop-color="#c9a64d"/><stop offset="1" stop-color="#a8893c"/></radialGradient>
+            </defs>
             <ellipse cx="153" cy="158" rx="126" ry="12" fill="#16241e" opacity=".22"/>
             <g class="cat-pose">
-              <path class="cat-tail" d="M235 130c51 22 64-20 35-29" stroke="#aa7e54" stroke-width="20" stroke-linecap="round"/>
-              <g class="cat-breath"><path d="M91 141c-3-31 10-76 59-80 57-5 106 27 108 62 2 23-18 32-68 32H111Z" fill="url(#catFur)"/><path d="M147 72c-1 10 5 18 11 20m13-22c0 12 7 19 11 21m13-16c-1 11 6 18 11 20" stroke="#986e4a" stroke-width="7" stroke-linecap="round" opacity=".6"/><path d="M193 142c25-4 39-22 32-39" stroke="#976b49" stroke-width="3" stroke-linecap="round" opacity=".6"/></g>
-              <g class="cat-front-paws"><path d="M101 137c-6 1-12 7-13 13-2 10 37 9 45 5l9-15Z" fill="#d1ab7c"/><path d="m104 151 1 5m8-6 1 6" stroke="#a57d54" stroke-width="1.5" stroke-linecap="round"/><path d="M75 139c-14-1-25 6-24 13 1 9 38 9 48 3l8-14Z" fill="#dabc8e"/><path d="m65 151 1 5m8-5 1 5" stroke="#ae865d" stroke-width="1.5" stroke-linecap="round"/></g>
+              <path class="cat-tail" d="M235 130c51 22 64-20 35-29" stroke="#414d47" stroke-width="22" stroke-linecap="round"/>
+              <g class="cat-breath">
+                <path d="M91 141c-3-31 10-76 59-80 57-5 106 27 108 62 2 23-18 32-68 32H111Z" fill="url(#catFur)"/>
+                <path d="M118 82c-11 16-8 33-3 43 8 15 28 22 56 28h-60l-21-13Z" fill="url(#catWhiteFur)"/>
+                <path d="M136 68c34-6 72 7 94 28" stroke="#929b87" stroke-width="2" stroke-linecap="round" opacity=".4"/>
+                <path d="M193 142c25-4 39-22 32-39" stroke="#293b32" stroke-width="3" stroke-linecap="round" opacity=".65"/>
+                <path d="M221 128c10-2 16 3 18 10l9 4c8 4 8 13-2 15l-35-1c-10-2-9-13-1-18Z" fill="url(#catWhiteFur)"/>
+                <path d="m231 149 2 6m7-7 2 6" stroke="#a8b3a0" stroke-width="1.4" stroke-linecap="round"/>
+              </g>
+              <g class="cat-front-paws"><path d="M101 128c-5 8-12 13-13 22-2 10 37 9 45 5l9-15-10-12Z" fill="url(#catWhiteFur)"/><path d="m104 151 1 5m8-6 1 6" stroke="#a8b3a0" stroke-width="1.5" stroke-linecap="round"/><path d="M75 134c-14 0-25 11-24 18 1 9 38 9 48 3l8-14Z" fill="#ecedde"/><path d="m65 151 1 5m8-5 1 5" stroke="#a8b3a0" stroke-width="1.5" stroke-linecap="round"/></g>
               <g class="cat-head-follow"><g class="cat-head">
-                <g class="cat-ear ear-left"><path d="M44 103 36 56q0-9 8-4l31 24Z" fill="#c49a6b"/><path d="m45 64 5 25 15-12Z" fill="#b68169"/></g>
-                <g class="cat-ear ear-right"><path d="m95 78 29-28q7-6 7 5l-2 48Z" fill="#c49a6b"/><path d="m123 64-19 15 16 11Z" fill="#b68169"/></g>
+                <g class="cat-ear ear-left"><path d="M44 103 36 56q0-9 8-4l31 24Z" fill="#505c54" stroke="#8f9a87" stroke-width="1"/><path d="m45 64 5 25 15-12Z" fill="#8e8a80"/></g>
+                <g class="cat-ear ear-right"><path d="m95 78 29-28q7-6 7 5l-2 48Z" fill="#505c54" stroke="#8f9a87" stroke-width="1"/><path d="m123 64-19 15 16 11Z" fill="#8e8a80"/></g>
                 <path d="M39 106c0-23 19-34 45-33 29-2 48 14 48 36 0 25-22 41-48 40-27 0-45-16-45-43Z" fill="url(#catHeadFur)"/>
-                <path d="m73 78 5 13m9-14v12m11-10-5 12" stroke="#a47a50" stroke-width="4" stroke-linecap="round"/>
-                <g class="cat-face"><path d="M60 121c2-9 15-10 24-2 10-8 23-6 25 2 4 17-48 22-49 0Z" fill="#e1c69b"/>
-                  <g class="eyes-closed" stroke="#5e5141" stroke-width="2.7" stroke-linecap="round"><path d="M56 111q7 6 14 0m28 0q7 6 14 0"/></g>
-                  <g class="eyes-open"><ellipse cx="64" cy="110" rx="5" ry="6" fill="#536047"/><ellipse cx="104" cy="110" rx="5" ry="6" fill="#536047"/><path d="M64 106v8m40-8v8" stroke="#293f30" stroke-width="2"/><circle cx="66" cy="108" r="1.4" fill="#f1e3ba"/><circle cx="106" cy="108" r="1.4" fill="#f1e3ba"/></g>
-                  <path d="m79 120 5 4 5-4Z" fill="#966d5d"/><path d="M84 124v4m0-1q-4 6-8 1m8-1q4 6 8 1" stroke="#79604b" stroke-width="1.6" stroke-linecap="round"/>
-                  <g stroke="#a9855c" stroke-width="1.4" stroke-linecap="round"><path d="m68 123-26-3m26 9-25 3m57-9 26-3m-26 9 25 3"/></g>
+                <g class="cat-face">
+                  <path d="M82 76c-4 15-2 24-10 32-5 6-21 8-28 4 3 23 18 37 40 37 24 0 42-13 46-34-14 4-28-2-34-10-7-7-6-19-8-29Z" fill="url(#catWhiteFur)"/>
+                  <path d="M61 123c3-8 15-9 23-2 9-7 22-5 24 3 1 14-45 18-47-1Z" fill="#f2f1e2"/>
+                  <g class="eyes-closed" stroke="#c8d0b9" stroke-width="2.7" stroke-linecap="round"><path d="M56 111q7 6 14 0m28 0q7 6 14 0"/></g>
+                  <g class="eyes-open"><ellipse cx="64" cy="110" rx="7.5" ry="8" fill="url(#catIris)" stroke="#293b32" stroke-width="1.2"/><ellipse cx="104" cy="110" rx="7.5" ry="8" fill="url(#catIris)" stroke="#293b32" stroke-width="1.2"/><ellipse cx="64" cy="110" rx="2" ry="6" fill="#26382e"/><ellipse cx="104" cy="110" rx="2" ry="6" fill="#26382e"/><circle cx="66" cy="107" r="1.7" fill="#f9f1ce"/><circle cx="106" cy="107" r="1.7" fill="#f9f1ce"/></g>
+                  <path d="m78 120 6 5 6-5q-6-3-12 0Z" fill="#38433e"/><path d="M84 125v3m0-1q-4 6-8 1m8-1q4 6 8 1" stroke="#697a68" stroke-width="1.6" stroke-linecap="round"/>
+                  <g stroke="#a1af9a" stroke-width="1.3" stroke-linecap="round"><path d="m68 123-26-3m26 9-25 3m57-9 26-3m-26 9 25 3"/></g>
                 </g>
-                <g class="cat-back-head"><path d="M39 106c0-23 19-34 45-33 29-2 48 14 48 36 0 25-22 41-48 40-27 0-45-16-45-43Z" fill="url(#catFur)"/><path d="m72 79 5 15m11-17v16m11-13-5 15" stroke="#986e4a" stroke-width="4" stroke-linecap="round"/></g>
+                <g class="cat-back-head"><path d="M39 106c0-23 19-34 45-33 29-2 48 14 48 36 0 25-22 41-48 40-27 0-45-16-45-43Z" fill="url(#catHeadFur)"/><path d="M65 80q20-9 38 2" stroke="#929b87" stroke-width="1.5" stroke-linecap="round" opacity=".4"/></g>
               </g></g>
             </g>
           </svg>
